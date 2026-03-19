@@ -2,11 +2,12 @@ name: Daily TSC Lesson
 
 on:
   schedule:
+    # 매일 한국 시간 오전 11:59 (UTC 02:59)에 실행
     - cron: '59 2 * * *'
-  workflow_dispatch:
+  workflow_dispatch: # 수동 실행 버튼 활성화
 
 permissions:
-  contents: write
+  contents: write # 깃허브 저장소에 파일을 푸시하기 위한 권한
 
 jobs:
   run-bot:
@@ -23,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install gTTS python-telegram-bot google-generativeai python-dotenv
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run TSC Bot
         env:
@@ -32,14 +33,15 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py --now
 
-      - name: Commit and Push
+      - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 파일명을 명시하지 않고 모든 변경사항(.)을 반영합니다.
+          # 변경된 모든 파일(오답노트 포함)을 추가
           git add .
           
+          # 변경사항이 있을 때만 푸시
           if ! git diff --cached --quiet; then
             git commit -m "Update training results [skip ci]"
             git push
