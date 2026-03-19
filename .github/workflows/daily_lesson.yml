@@ -6,9 +6,6 @@ on:
     - cron: '59 2 * * *'
   workflow_dispatch: # 수동 실행 버튼 활성화
 
-permissions:
-  contents: write # 깃허브 저장소에 파일을 푸시하기 위한 권한
-
 jobs:
   run-bot:
     runs-on: ubuntu-latest
@@ -25,26 +22,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # SDK 명시적으로 설치
+          pip install gTTS python-telegram-bot google-genai python-dotenv
 
       - name: Run TSC Bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python main.py --now
-
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # 변경된 모든 파일(오답노트 포함)을 추가
-          git add .
-          
-          # 변경사항이 있을 때만 푸시
-          if ! git diff --cached --quiet; then
-            git commit -m "Update training results [skip ci]"
-            git push
-          else
-            echo "No changes to commit"
-          fi
+        run: python main.py
