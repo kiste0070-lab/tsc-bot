@@ -7,27 +7,27 @@ on:
   workflow_dispatch: # 수동 실행 버튼 활성화
 
 permissions:
-  contents: write # MD 파일을 저장소에 푸시하기 위한 권한
+  contents: write # 필수: 저장소에 파일을 쓰기 위한 권한
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # v3 -> v4 업데이트
+        uses: actions/checkout@v4 # 최신 버전으로 업데이트 (경고 해결)
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # v4 -> v5 업데이트
+        uses: actions/setup-python@v5 # 최신 버전으로 업데이트 (경고 해결)
         with:
           python-version: '3.10'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Ensure files exist
-        run: touch wrong_notes.md # 파일이 없을 경우 대비
+        run: touch wrong_notes.md # 파일 누락 방지
 
       - name: Run TSC Bot
         env:
@@ -42,10 +42,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add wrong_notes.md
-          # 변경사항이 있을 때만 푸시 (없으면 스킵)
+          # 변경사항이 있을 때만 푸시
           if ! git diff --cached --quiet; then
             git commit -m "Update wrong notes [skip ci]"
             git push
           else
-            echo "No changes to commit"
+            echo "변경사항이 없어 푸시를 건너뜁니다."
           fi
