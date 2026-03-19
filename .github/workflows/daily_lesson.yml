@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # 최신 버전으로 업데이트 (경고 해결)
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # 최신 버전으로 업데이트 (경고 해결)
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -25,9 +25,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
-      - name: Ensure files exist
-        run: touch wrong_notes.md # 파일 누락 방지
 
       - name: Run TSC Bot
         env:
@@ -41,11 +38,17 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add wrong_notes.md
-          # 변경사항이 있을 때만 푸시
-          if ! git diff --cached --quiet; then
-            git commit -m "Update wrong notes [skip ci]"
-            git push
+          
+          # 파일이 있을 때만 추가 (없으면 에러 없이 통과)
+          if [ -f wrong_notes.md ]; then
+            git add wrong_notes.md
+            # 변경사항이 있을 때만 푸시
+            if ! git diff --cached --quiet; then
+              git commit -m "Update wrong notes [skip ci]"
+              git push
+            else
+              echo "변경사항이 없어 푸시를 건너뜁니다."
+            fi
           else
-            echo "변경사항이 없어 푸시를 건너뜁니다."
+            echo "오답 노트 파일이 생성되지 않아 작업을 종료합니다."
           fi
