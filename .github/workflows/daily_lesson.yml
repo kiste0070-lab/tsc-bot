@@ -39,16 +39,13 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # 파일이 있을 때만 추가 (없으면 에러 없이 통과)
-          if [ -f wrong_notes.md ]; then
-            git add wrong_notes.md
-            # 변경사항이 있을 때만 푸시
-            if ! git diff --cached --quiet; then
-              git commit -m "Update wrong notes [skip ci]"
-              git push
-            else
-              echo "변경사항이 없어 푸시를 건너뜁니다."
-            fi
+          # 파일이 이미 저장소에 있으므로 안전하게 add가 가능합니다.
+          git add wrong_notes.md
+          
+          # 변경사항이 있을 때만 푸시
+          if ! git diff --cached --quiet; then
+            git commit -m "Update wrong notes [skip ci]"
+            git push
           else
-            echo "오답 노트 파일이 생성되지 않아 작업을 종료합니다."
+            echo "변경사항이 없어 푸시를 건너뜁니다."
           fi
