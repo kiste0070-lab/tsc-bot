@@ -1,0 +1,4 @@
+gTTS
+python-telegram-bot
+google-genai
+python-dotenv
