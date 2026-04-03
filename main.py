@@ -44,8 +44,9 @@ user_sessions = {}
 stop_requested = False
 
 def contains_hangul(text: str) -> bool:
-    # 한글(가~힣) 포함 여부로 TTS 필요 여부를 판정한다.
-    return any("\uAC00" <= ch <= "\uD7A3" for ch in (text or ""))
+    # '부분' 등 형식에 사용되는 단어를 제외한 후 한글이 있는지 검사한다.
+    clean_text = text.replace("부분", "").replace("문제", "").replace("답변", "").replace(" ", "")
+    return any("\uAC00" <= ch <= "\uD7A3" for ch in (clean_text or ""))
 
 # 2. TTS 변환 및 발송 함수
 async def send_voice_message(context, chat_id, text):
@@ -100,18 +101,25 @@ def save_wrong_note(user_text: str, model_text: str):
         f.write(f"**💡 첨삭/교정:**\n{model_text}\n\n")
         f.write("---\n")
 
-# 3. 시스템 프롬프트 (오답노트 부분 제거)
+# 3. 시스템 프롬프트
 def get_system_prompt():
     return """
-    너는 TSC 전문 중국어 선생님이야. Part 1은 생략하고 Part 2~7을 집중 훈련시켜.
+    너는 TSC 전문 중국어 선생님이야. Part 2부터 Part 6까지 집중 훈련시켜.
     
     [핵심 규칙]
-    1. 일반 수업 진행에서 '질문(문제 제시)'은 반드시 중국어로만 먼저 제시해. 인사말/소개/설명/한국어/번호 라벨(예: '문제:')도 금지해.
-    2. 사용자가 '문제설명'이라고 보내면, 직전에 나온 중국어 문제를 한국어로만 자세히 설명해줘.
-    3. 사용자가 '문제해석'이라고 보내면, 직전에 나온 중국어 문제를 한국어로만 해석해줘.
-    4. 사용자가 답변을 한 뒤 제공하는 '답변 첨삭/교정'은 반드시 한국어로만 작성해줘(병음/예시는 넣어도 되지만 설명은 한국어로).
-    5. 문제설명/문제해석/답변 첨삭 요청에는 '한국어'로만 답해줘. (불필요한 중국어 재질문 금지)
-    6. 10문제 완료 시 "수업 종료"라고 말해.
+    1. 수업이 시작되면 2부분부터 6부분까지 총 5개의 문제를 한꺼번에 제시해. 각 문제 번호는 아래와 같은 형식으로 나타내. (문제 내용은 반드시 중국어로만 제시)
+    2부분 : 문제
+    3부분 : 문제
+    4부분 : 문제
+    5부분 : 문제
+    6부분 : 문제
+    
+    2. 사용자가 '문제설명'이라고 보내면, 제시된 문제들을 부분별로 한국어로 자세히 설명해줘.
+    3. 사용자가 '문제해석'이라고 보내면, 제시된 문제들을 부분별로 한국어로 해석해줘.
+    4. 사용자가 답변을 보낼 때, 본인이 답변하고 싶은 부분만 (예: "3부분 : 답변내용") 적어서 보낼 수 있어.
+    5. 사용자가 답변을 한 뒤 제공하는 '답변 첨삭/교정'은 사용자가 답변을 작성한 부분에 대해서만 진행하고 (답변 못한 부분은 첨삭/지적 절대 안함), 첨삭은 반드시 한국어로 작성해줘(병음/예시는 넣되 설명은 한국어).
+    6. 문제설명/문제해석/답변 첨삭 요청에는 '한국어'로만 답해줘. (불필요한 중국어 재질문 금지)
+    7. 첨삭이 끝나면 "수업 종료"라고 말해.
     """
 
 async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
@@ -127,8 +135,7 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     chat = client.chats.create(model=MODEL_ID, history=user_sessions[chat_id]["history"])
     # 첫 출력은 인사말/스몰토크 없이 '문제만' 중국어로 제시해야 TTS가 정상 동작한다.
     response = chat.send_message(
-        "스몰토크나 인사말 없이, 첫 번째 문제를 중국어로만 제공해. "
-        "한국어(라벨/설명/번호 포함)와 불필요한 메타 문구는 절대 넣지 말고 '문제 문장/문항 내용'만 보내줘."
+        "스몰토크나 인사말 없이, Part 2부터 Part 6까지 총 5개의 문제를 지정된 형식(2부분 : 문제, 3부분 : 문제 ...)에 맞게 한 번에 제공해줘."
     )
     
     text_response = response.text
