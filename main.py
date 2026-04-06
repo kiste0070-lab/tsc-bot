@@ -283,6 +283,21 @@ def save_wrong_note(user_text: str, model_text: str):
         f.write(f"**💡 첨삭/교정:**\n{model_text}\n\n")
         f.write("---\n")
 
+def parse_hsk_eval(text: str):
+    """[HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 태그를 파싱"""
+    match = re.search(r'\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]', text)
+    if match:
+        return {
+            "종합": match.group(1),
+            "단어": match.group(2),
+            "문법": match.group(3)
+        }
+    return None
+
+def strip_hsk_eval(text: str):
+    """응답에서 HSK_EVAL 태그를 제거"""
+    return re.sub(r'\[HSK_EVAL\].*?\[/HSK_EVAL\]', '', text).strip()
+
 # 3. 시스템 프롬프트
 def get_system_prompt(problems_text):
     return f"""
@@ -308,6 +323,17 @@ def get_system_prompt(problems_text):
 6. 사용자가 '수업종료'라고 보내면, 5개 문제 ALL 부분에 대한 예시 답변(HSK 1~4급, 2문장)을 작성하고 수업을 종료해.
 7. 문제설명/문제해석/답변 첨삭 요청에는 '한국어'로만 답해줘. (불필요한 중국어 재질문 금지)
 8. 첨삭과 예시 답변이 끝나면 "수업 종료"라고 말해.
+
+[HSK 레벨 평가 규칙]
+- 사용자의 중국어 답변을 분석하여 HSK 레벨을 평가해줘.
+- 평가 기준:
+  * 단어: 사용한 어휘의 난이도 (HSK 1급=초급 ~ 6급=고급)
+  * 문법: 사용한 문장 구조의 복잡도 (HSK 1급=단순문 ~ 6급=복합문/성어)
+  * 종합: 단어와 문법의 가중 평균 (단어 50% + 문법 50%)
+- 등급은 소수점 첫째자리까지 표시 (예: 3.2, 4.5)
+- 수업 종료 시, 마지막 줄에 반드시 다음 형식으로 HSK 평가 결과를 포함해줘:
+  [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL]
+- 예시: [HSK_EVAL]종합:3.2|단어:3.5|문법:3.0[/HSK_EVAL]
 """
 
 async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
@@ -368,11 +394,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             session = user_sessions[chat_id]
             chat = client.chats.create(model=MODEL_ID, history=session["history"])
             response = chat.send_message(
-                "수업종료 명령이 입력되었습니다. 5개 문제(Part 2~6) ALL 부분에 대해 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 작성하고 '수업 종료'라고 말해줘."
+                "수업종료 명령이 입력되었습니다. 5개 문제(Part 2~6) ALL 부분에 대해 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 작성하고 '수업 종료'라고 말해줘. "
+                "마지막 줄에 반드시 [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 형식으로 HSK 레벨 평가를 포함해줘."
             )
             full_text = response.text
-            await update.message.reply_text(full_text)
             save_wrong_note(user_text, full_text)
+
+            # HSK 평가 결과 파싱 및 표시
+            hsk_eval = parse_hsk_eval(full_text)
+            clean_text = strip_hsk_eval(full_text)
+
+            await update.message.reply_text(clean_text)
+
+            if hsk_eval:
+                hsk_msg = (
+                    f"🎓 수업 종료되었습니다.\n\n"
+                    f"📊 종합: HSK {hsk_eval['종합']}등급\n"
+                    f"📖 단어: HSK {hsk_eval['단어']}등급\n"
+                    f"📝 문법: HSK {hsk_eval['문법']}등급"
+                )
+                await update.message.reply_text(hsk_msg)
 
         await update.message.reply_text("수업을 종료합니다. 수고하셨습니다!")
         stop_requested = True
@@ -402,6 +443,21 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session["history"].append(types.Content(role="user", parts=[types.Part(text=update.message.text)]))
         session["history"].append(types.Content(role="model", parts=[types.Part(text=full_text)]))
     else:
+        # HSK 평가 결과 파싱 및 표시
+        hsk_eval = parse_hsk_eval(full_text)
+        clean_text = strip_hsk_eval(full_text)
+
+        await update.message.reply_text(clean_text)
+
+        if hsk_eval:
+            hsk_msg = (
+                f"🎓 수업 종료되었습니다.\n\n"
+                f"📊 종합: HSK {hsk_eval['종합']}등급\n"
+                f"📖 단어: HSK {hsk_eval['단어']}등급\n"
+                f"📝 문법: HSK {hsk_eval['문법']}등급"
+            )
+            await update.message.reply_text(hsk_msg)
+
         logger.info("수업이 종료되었습니다. 봇을 정지합니다.")
         stop_requested = True
         try:
