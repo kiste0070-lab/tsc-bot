@@ -1,0 +1,216 @@
+{
+  "quiz_id": 6,
+  "title": "HSK 4 Online Mock Exam Series 5",
+  "source": "Mandarin Zone (mandarinzone.com)",
+  "total_questions": 100,
+  "questions": [
+    {
+      "number": 46,
+      "original_id": 1635,
+      "type": "fill_in_blank",
+      "text": "46. 选词填空：这种裙子最近很（ ），我也想去买一条。",
+      "options": ["A 举办", "B 可是", "C 味道", "D 坚持", "E 食品", "F 流行"],
+      "correct_answer_index": 5
+    },
+    {
+      "number": 47,
+      "original_id": 1634,
+      "type": "fill_in_blank",
+      "text": "47. 选词填空：我本来已经打算放弃了，（ ）他的话让我改变了主意。",
+      "options": ["A 举办", "B 可是", "C 味道", "D 坚持", "E 食品", "F 流行"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 48,
+      "original_id": 1633,
+      "type": "fill_in_blank",
+      "text": "48. 选词填空：春节时，最受欢迎的（ ）是饺子，尤其是在中国北方。",
+      "options": ["A 举办", "B 可是", "C 味道", "D 坚持", "E 食品", "F 流行"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 51,
+      "original_id": 1630,
+      "type": "fill_in_blank",
+      "text": "51. 选词填空：A：这个地方真大啊，咱们再去那边逛逛吧。B：估计（ ）了，集合时间马上就到了。",
+      "options": ["A 主动", "B 重新", "C 温度", "D 来不及", "E 严重", "F 大概"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 52,
+      "original_id": 1629,
+      "type": "fill_in_blank",
+      "text": "52. 选词填空：A：你们学校的硕士和博士研究生一共有多少人？B：准确数字我不太清楚，（ ）有三四千吧。",
+      "options": ["A 主动", "B 重新", "C 温度", "D 来不及", "E 严重", "F 大概"],
+      "correct_answer_index": 5
+    },
+    {
+      "number": 53,
+      "original_id": 1628,
+      "type": "fill_in_blank",
+      "text": "53. 选词填空：A：你来看看，这些表格의 순서가 맞지 않지？B：对不起，是我粗心。我（ ）打印一份给您吧。",
+      "options": ["A 主动", "B 重新", "C 温度", "D 来不及", "E 严重", "F 大概"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 66,
+      "original_id": 1615,
+      "type": "reading_comprehension",
+      "text": "66. 提前出发是为了：（文章：首都体育馆今天晚上有活动...）",
+      "options": ["A、参加活动", "B、观看表演", "C、错开堵车", "D、去接儿子"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 67,
+      "original_id": 1614,
+      "type": "reading_comprehension",
+      "text": "67. 应该怎样教育孩子？（文章：在教育孩子时，我们应该少批评、多鼓励...）",
+      "options": ["A、不能批评", "B、要多鼓励", "C、重视成绩", "D、信任孩子"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 68,
+      "original_id": 1613,
+      "type": "reading_comprehension",
+      "text": "68. 根据这段话，质量很好的东西：（文章：大家都说：便宜没好货...）",
+      "options": ["A，当然很贵", "B，不会打折", "C，不受顾客欢迎", "D，有时候也便宜"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 69,
+      "original_id": 1612,
+      "type": "reading_comprehension",
+      "text": "69. 这段话最可能是：（文章：一群性格各不相同的年轻人...）",
+      "options": ["A 广告", "B 京剧", "C 小说", "D 日记"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 70,
+      "original_id": 1611,
+      "type": "reading_comprehension",
+      "text": "70. 这段话告诉我们，学会放弃：（文章：昨天的放弃决定了今天的选择...）",
+      "options": ["A 值得原谅", "B 是个缺点", "C 能减少竞争", "D 会有更多选择"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 71,
+      "original_id": 1610,
+      "type": "reading_comprehension",
+      "text": "71. 小刘想了解哪方面的情况？（文章：小刘，这方面的问题我也不太懂...）",
+      "options": ["A 艺术", "B 汉语", "C 法律", "D 语言"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 73,
+      "original_id": 1608,
+      "type": "reading_comprehension",
+      "text": "73. 这段话的主要意思是：（文章：你有一个苹果，我有一个香蕉...）",
+      "options": ["A 要关心别人", "B 要多吃水果", "C 交流很重要", "D 做事情要耐心"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 74,
+      "original_id": 1607,
+      "type": "reading_comprehension",
+      "text": "74. 他为什么获得了尊重？（文章：他这些年做生意赚了不少钱...）",
+      "options": ["A 年龄大", "B 脾气好", "C 他是富人", "D 帮助穷人"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 79,
+      "original_id": 1602,
+      "type": "reading_comprehension",
+      "text": "79. 对熟悉的东西，我们往往：（文章：\"熟悉的地方没有风景\"...）",
+      "options": ["A 很有感情", "B 无法判断", "C 会有些怀疑", "D 缺少新鲜感"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 82,
+      "original_id": 1599,
+      "type": "reading_comprehension",
+      "text": "82. 关于减肥，最重要的是：（文章：如果你想减肥，那么必须做到两点...）",
+      "options": ["A 多锻炼", "B 有计划", "C 每天都运动", "D 不要有烦恼"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 86,
+      "original_id": 1595,
+      "type": "writing_construction",
+      "text": "86. 你 关了 把窗户 吗",
+      "options": ["你把窗户关了吗？"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 87,
+      "original_id": 1594,
+      "type": "writing_construction",
+      "text": "87. 拉近 了 人与人之间的 手机 距离",
+      "options": ["手机拉近了人与人之间的距离。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 88,
+      "original_id": 1593,
+      "type": "writing_construction",
+      "text": "88. 去年秋天 我孙子 出生 是 的",
+      "options": ["我孙子是去年秋天出生的。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 89,
+      "original_id": 1592,
+      "type": "writing_construction",
+      "text": "89. 打针 好 比吃药 效果",
+      "options": ["打针比吃药效果好。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 90,
+      "original_id": 1591,
+      "type": "writing_construction",
+      "text": "90. 这个城市 出租车的数量 决定 增加",
+      "options": ["这个城市决定增加出租车的数量。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 91,
+      "original_id": 1590,
+      "type": "writing_construction",
+      "text": "91. 非常 大 影响范围 这场降水 的",
+      "options": ["这场降水的影响范围非常大。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 92,
+      "original_id": 1589,
+      "type": "writing_construction",
+      "text": "92. 工具书 是 一本 现代汉语词典",
+      "options": ["现代汉语词典是一本工具书。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 93,
+      "original_id": 1588,
+      "type": "writing_construction",
+      "text": "93. 哥哥 睡不着觉 得 兴奋",
+      "options": ["哥哥兴奋得睡不着觉。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 94,
+      "original_id": 1587,
+      "type": "writing_construction",
+      "text": "94. 好处 抽烟对你 没有 一点儿",
+      "options": ["抽烟对你没有一点儿好处。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 95,
+      "original_id": 1586,
+      "type": "writing_construction",
+      "text": "95. 完全 国家的 这么做 符合 法律规定",
+      "options": ["这么做完全符合国家的法律规定。"],
+      "correct_answer_index": 0
+    }
+  ]
+}

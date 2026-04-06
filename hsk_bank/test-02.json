@@ -1,0 +1,256 @@
+{
+  "quiz_id": 3,
+  "title": "HSK 4 Online Mock Test Series 2",
+  "source": "Mandarin Zone (mandarinzone.com)",
+  "total_questions": 100,
+  "questions": [
+    {
+      "number": 46,
+      "original_id": 550,
+      "type": "fill_in_blank",
+      "text": "46. 你去买啤酒吗？（ ）帮我买一盒牛奶吧。",
+      "options": ["A 禁止", "B 海洋", "C 推迟", "D 坚持", "E 顺便", "F 估计"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 47,
+      "original_id": 551,
+      "type": "fill_in_blank",
+      "text": "47. 刚才听广播说明天可能会下大雨，足球比赛恐怕要（ ）了。",
+      "options": ["A 禁止", "B 海洋", "C 推迟", "D 坚持", "E 顺便", "F 估计"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 48,
+      "original_id": 552,
+      "type": "fill_in_blank",
+      "text": "48. 飞机上（ ）使用手机，飞行过程中手机也要关上。",
+      "options": ["A 禁止", "B 海洋", "C 推迟", "D 坚持", "E 顺便", "F 估计"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 49,
+      "original_id": 553,
+      "type": "fill_in_blank",
+      "text": "49. 明天就可以在网上查成绩了，我（ ）这次考得不坏。",
+      "options": ["A 禁止", "B 海洋", "C 推迟", "D 坚持", "E 顺便", "F 估计"],
+      "correct_answer_index": 5
+    },
+    {
+      "number": 50,
+      "original_id": 554,
+      "type": "fill_in_blank",
+      "text": "50. 地球上约71%的地方是蓝色的（ ）。",
+      "options": ["A 禁止", "B 海洋", "C 推迟", "D 坚持", "E 顺便", "F 估计"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 51,
+      "original_id": 555,
+      "type": "fill_in_blank",
+      "text": "51. A：丽丽说再等她几分钟，她马上就来。B：她（ ）在干什么呢，怎么这么慢？",
+      "options": ["A 工具", "B 收", "C 温度", "D 到底", "E 辛苦", "F 抱歉"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 52,
+      "original_id": 556,
+      "type": "fill_in_blank",
+      "text": "52. A：那个房间又脏又乱，星期六我去打扫、整理了一下。B：原来是你啊，（ ）了，谢谢你！",
+      "options": ["A 工具", "B 收", "C 温度", "D 到底", "E 辛苦", "F 抱歉"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 53,
+      "original_id": 557,
+      "type": "fill_in_blank",
+      "text": "53. A：我刚从会议室过来，怎么一个人也没有？B：对不起，今天的会议改到明天上午了，您没（ ）到通知吗？",
+      "options": ["A 工具", "B 收", "C 温度", "D 到底", "E 辛苦", "F 抱歉"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 54,
+      "original_id": 558,
+      "type": "fill_in_blank",
+      "text": "54. A：语言是交流的（ ），只记字典、词典里的字、词是不够的，要多听多说。B：对，这才是学习汉语的好方法。",
+      "options": ["A 工具", "B 收", "C 温度", "D 到底", "E 辛苦", "F 抱歉"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 55,
+      "original_id": 559,
+      "type": "fill_in_blank",
+      "text": "55. A：真（ ），我迟到了。B：没关系，表演还有5分钟才开始。",
+      "options": ["A 工具", "B 收", "C 温度", "D 到底", "E 辛苦", "F 抱歉"],
+      "correct_answer_index": 5
+    },
+    {
+      "number": 56,
+      "original_id": 560,
+      "type": "reading_ordering",
+      "text": "56. 请将下列句子按正确顺序排列：\nA 它就长满了这面墙，叶子很厚，绿绿的\nB 这种植物在这个季节长得很快\nC 经过短短一个星期",
+      "options": ["ABC", "ACB", "BAC", "BCA", "CAB", "CBA"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 66,
+      "original_id": 570,
+      "type": "reading_comprehension",
+      "text": "66. 刷牙的时候，水太冷或者太热，都会给牙的健康带来不好的影响。研究发现，用35度的温水刷牙才是最合适的。刷牙时，我们应该：",
+      "options": ["A 使用温水", "B 常换牙刷", "C 早晚各一次", "D 至少刷5分钟"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 67,
+      "original_id": 571,
+      "type": "reading_comprehension",
+      "text": "67. 这种葡萄酒，不仅味道好，而且每个酒瓶也都像一件高级艺术品。很多人愿意出高价购买它很多时候是被那些特别的酒瓶吸引了。这种葡萄酒：",
+      "options": ["A 比较甜", "B 是艺术品", "C 酒瓶很特别", "D 是当地制造的"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 68,
+      "original_id": 572,
+      "type": "reading_comprehension",
+      "text": "68. 阅读能力好的人不但容易找到工作，而且工资也比较高。另外，阅读考试的分数往往还能反映一个国家的教育水平。阅读能力好的人一般：",
+      "options": ["A 收入高", "B 烦恼少", "C 经历丰富", "D 年龄比较大"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 69,
+      "original_id": 573,
+      "type": "reading_comprehension",
+      "text": "69. 有些人喜欢不停地换工作，他们总以为新工作一定比现在的好。实际上，一般情况下，完全适应一个新的工作需要一年时间，因此，经常换工作不一定好，根据自己的条件，把一份工作坚持做到最好才是正确的选择。有些人经常换工作是因为他们：",
+      "options": ["A 极其努力", "B 非常得意", "C 工作不愉快", "D 相信新工作更好"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 70,
+      "original_id": 574,
+      "type": "reading_comprehension",
+      "text": "70. 我喜欢读这份报纸，因为它的内容丰富，而且广告少，最重要的是，经济方面的新闻对我的工作很有帮助。他喜欢这份报纸的原因之一是：",
+      "options": ["A 免费", "B 价格低", "C 广告少", "D 笑话多"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 71,
+      "original_id": 575,
+      "type": "reading_comprehension",
+      "text": "71. 医生提醒人们，在使用感冒药之前，一定要仔细阅读说明书。并且最好只选择一种感冒药，否则药物之间可能互相作用，会影响我们的健康。医生一共有几个提醒？",
+      "options": ["A 一个", "B 两个", "C 3个", "D 4个"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 72,
+      "original_id": 576,
+      "type": "reading_comprehension",
+      "text": "72. 在中国生活的三年使他在音乐方面有了很多新的想法，他把京剧的一些特点增加到自己的音乐中，取得了很好的效果。根据这段话，可以知道他：",
+      "options": ["A 很热情", "B 会唱京剧", "C 受到京剧影响", "D 离开中国三年了"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 73,
+      "original_id": 577,
+      "type": "reading_comprehension",
+      "text": "73. 儿子小时候一说话就脸红，回答老师问题的时候声音也很小，我当时很替他担心。但随着年龄的增长，他逐渐成熟了，大学毕业后成了一名优秀的律师，真让人吃惊。\"让人吃惊\"的是儿子：",
+      "options": ["A 当了律师", "B 变得很笨", "C 越来越帅", "D 赚了很多钱"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 74,
+      "original_id": 578,
+      "type": "reading_comprehension",
+      "text": "74. 做生意时会遇到竞争带来的压力，但是大家的机会也是相同的。清楚地了解市场和顾客的需要，做一个符合市场发展需要的计划非常重要。做生意需要重视：",
+      "options": ["A 节约", "B 反对意见", "C 积累经验", "D 了解市场需求"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 75,
+      "original_id": 579,
+      "type": "reading_comprehension",
+      "text": "75. 原谅是一种美，我们常说要学会原谅别人，但也要试着原谅自己。我们都有缺点，不可能把每件事都做得很好。这段话主要说，我们应该：",
+      "options": ["A 感谢别人", "B 尊重别人", "C 原谅自己", "D 成为优秀的人"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 76,
+      "original_id": 580,
+      "type": "reading_comprehension",
+      "text": "76. 您好，我们翻译，每1000字150元人民币。这些信息在公司网站上都有详细的介绍，您有什么特别要求或任何不清楚的地方欢迎和我们联系。说话人正在做什么？",
+      "options": ["A 总结", "B 招聘", "C 介绍", "D 道歉"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 77,
+      "original_id": 581,
+      "type": "reading_comprehension",
+      "text": "77. 大部分人每天晚上至少应该睡7个小时，但是这个标准并不适合每一个人，有些人即使只睡5个小时也很有精神。每天晚上睡7个小时适合：",
+      "options": ["A 儿童", "B 胖子", "C 所有人", "D 大部分人"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 78,
+      "original_id": 582,
+      "type": "reading_comprehension",
+      "text": "78. 很多时候孩子发脾气是为了得到一些好处，父母不能因为孩子发脾气就给他好处。如果我们不重视这个问题，他就容易养成发脾气的坏习惯。孩子发脾气主要是因为：",
+      "options": ["A 缺少关心", "B 父母批评他", "C 想得到好处", "D 想引起别人注意"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 79,
+      "original_id": 583,
+      "type": "reading_comprehension",
+      "text": "79. 什么是真正的朋友？有些人觉得就是能和自己一起快乐的人，其实朋友应该像镜子，能帮你看清自己的缺点；无论你成功或者失败，永远都支持你。这段话主要谈：",
+      "options": ["A 谁能成功", "B 学会改变", "C 怎样支持朋友", "D 什么是真朋友"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 80,
+      "original_id": 584,
+      "type": "reading_comprehension",
+      "text": "80. 世界上第一部无声电影出现的时候，吸引了成千上万的观众。世界上第一部无声电影：",
+      "options": ["A 很幽默", "B 不成功", "C 观众很多", "D 内容复杂"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 86,
+      "original_id": 590,
+      "type": "writing_construction",
+      "text": "86. 请将下列词语组成正确的句子：会弹钢琴的人 羡慕 很 她",
+      "options": ["她很羡慕会弹钢琴的人。", "会弹钢琴的人很羡慕她。", "她会弹钢琴的人很羡慕。", "很羡慕她会弹钢琴的人。"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 87,
+      "original_id": 591,
+      "type": "writing_construction",
+      "text": "87. 请将下列词语组成正确的句子：亚洲经济的 正在 逐渐 提高 增长速度",
+      "options": ["亚洲经济的增长速度正在逐渐提高。", "正在逐渐提高亚洲经济的增长速度。", "增长速度正在逐渐提高亚洲经济的。", "亚洲经济的正在逐渐提高增长速度。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 88,
+      "original_id": 592,
+      "type": "writing_construction",
+      "text": "88. 请将下列词语组成正确的句子：专为老年人 提供的 这椅子 是",
+      "options": ["这椅子是专为老年人提供的。", "专为老年人提供的是这椅子。", "是专为老年人提供的这椅子。", "这椅子专为老年人是提供的。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 89,
+      "original_id": 593,
+      "type": "writing_construction",
+      "text": "89. 请将下列词语组成正确的句子：中文 很流利 说得 他的",
+      "options": ["他的中文说得很流利。", "他说得中文很流利。", "中文他的说得很流利。", "很流利他的中文说得。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 90,
+      "original_id": 594,
+      "type": "writing_construction",
+      "text": "90. 请将下列词语组成正确的句子：已经 报名人数 900 超过了",
+      "options": ["报名人数已经超过了900。", "已经超过了900报名人数。", "900报名人数已经超过了。", "超过了900已经报名人数。"],
+      "correct_answer_index": 0
+    }
+  ]
+}

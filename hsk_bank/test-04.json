@@ -1,0 +1,192 @@
+{
+  "quiz_id": 5,
+  "title": "HSK 4 Online Mock Exam Series 4",
+  "source": "Mandarin Zone (mandarinzone.com)",
+  "total_questions": 100,
+  "questions": [
+    {
+      "number": 46,
+      "original_id": 1282,
+      "type": "fill_in_blank",
+      "text": "46. 她要求在洗手间的墙上（ ）一面大镜子。",
+      "options": ["A 食品", "B 粗心", "C 礼貌", "D 坚持", "E 挂", "F 完全"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 47,
+      "original_id": 1281,
+      "type": "fill_in_blank",
+      "text": "47. 他弟弟不但聪明，而且很懂（ ），给客人们留下了非常好的印象。",
+      "options": ["A 食品", "B 粗心", "C 礼貌", "D 坚持", "E 挂", "F 完全"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 48,
+      "original_id": 1280,
+      "type": "fill_in_blank",
+      "text": "48. 不管做什么事情，都应该认真、仔细，不能太马虎、太（ ）。",
+      "options": ["A 食品", "B 粗心", "C 礼貌", "D 坚持", "E 挂", "F 完全"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 66,
+      "original_id": 1262,
+      "type": "reading_comprehension",
+      "text": "66. 老人总是喜欢往回看，回忆总结自己过去的经历；而年轻人却相反，他们喜欢向前看，也容易接受新鲜事情。★ 和老年人相比，年轻人：",
+      "options": ["A 更节约", "B 拒绝变化", "C 关心将来", "D 缺少竞争力"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 67,
+      "original_id": 1261,
+      "type": "reading_comprehension",
+      "text": "67. 一个人成熟不成熟，不是看年龄的大小，而是要看他遇到问题时，能不能及时发现，并且准确地找到解决问题的方法。★ 成熟的人有什么特点？",
+      "options": ["A 年龄大", "B 会解决问题", "C 不会做错事", "D 不会遇到问题"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 68,
+      "original_id": 1260,
+      "type": "reading_comprehension",
+      "text": "68. 这个公司专门制造各种各样的筷子。他们的筷子用不同的材料做成，颜色也都不一样，质量很好。买来不仅可以自己用，还可以当礼物送给别人，顾客们都很喜欢。★ 这个公司制造的筷子：",
+      "options": ["A 很便宜", "B 很普通", "C 质量不错", "D 数量很少"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 69,
+      "original_id": 1259,
+      "type": "reading_comprehension",
+      "text": "69. 既然你不喜欢新闻专业，那就再考虑考虑其他专业吧，中文、国际关系什么的，妈和你爸都不反对。但是为了将来不后悔，不要这么快做决定，至少应该去了解一下这个专业，也许最后你会改变主意的。★ 根据这段话，可以知道他：",
+      "options": ["A 后悔了", "B 很生气", "C 想换专业", "D 成绩不合格"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 70,
+      "original_id": 1258,
+      "type": "reading_comprehension",
+      "text": "70. 要获得别人的尊重，必须先尊重别人。任何人心里都希望获得尊重，受到尊重的人往往会变得更友好、更容易交流。★ 怎样获得别人的尊重？",
+      "options": ["A 尊重别人", "B 多与人交流", "C 多表扬别人", "D 严格要求自己"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 79,
+      "original_id": 1249,
+      "type": "reading_comprehension",
+      "text": "79. 黄河是中国第二大河，从中国西部流向东部，全长5464公里，被人们叫做\"母亲河\"。从地图上看，它就像一个大大的\"几\"字。★ 关于黄河，可以知道：",
+      "options": ["A 很窄", "B 有很多座桥", "C 从西流向东", "D 大约一万多公里"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 80,
+      "original_id": 1248,
+      "type": "reading_comprehension",
+      "text": "80. 教育孩子要使用正确的方法。首先，不要用\"懒\"\"笨\"\"粗心\"这种词批评孩子，这样很容易让他们相信自己就是那样的，于是限制了他们正常的发展。其次，即使是出于教育的目的，也千万不能骗孩子，因为儿童缺少判断能力，看到父母骗人，他们也会学着说假话。★ 批评孩子懒、笨、粗心，会让孩子：",
+      "options": ["A 说假话", "B 缺少判断力", "C 发展受到限制", "D 不敢相信任何人"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 83,
+      "original_id": 1245,
+      "type": "reading_comprehension",
+      "text": "83. 医生对一个很胖的人说如果他每天跑8公里，跑300天，差不多就能减34公斤。300天后，医生接到那个人的电话，说他已经减了34公斤，但他因此也有了个难题，\"什么难题？\"医生问。那人说：\"我现在已经离家2400公里了。\" ★ 300天后，那个人の难题是什么？",
+      "options": ["A 没成功", "B 太瘦了", "C 离家太远", "D 不适应家里的生活"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 84,
+      "original_id": 1244,
+      "type": "reading_comprehension",
+      "text": "84. 科学研究证明，颜色会影响人的心情，不同的颜色会给人带来不同的感情变化。红色会让人变得热情，使人兴奋；黄色和白色让人觉得心情愉快，给人带来快乐；黑色却容易让人感到伤心难过；人们在看到蓝色时会觉得很舒服，会变得安静下来；绿色会让我们的眼睛得到休息，对我们的身体也有好处。★ 根据这段话，哪种颜色会让人觉得难受？",
+      "options": ["A 白色", "B 黑色", "C 黄色", "D 蓝色"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 85,
+      "original_id": 1243,
+      "type": "reading_comprehension",
+      "text": "85. 科学研究证明，颜色会影响人的心情，不同的颜色会给人带来不同的感情变化。红色会让人变得热情，使人兴奋；黄色和白色让人觉得心情愉快，给人带来快乐；黑色却容易让人感到伤心难过；人们在看到蓝色时会觉得很舒服，会变得安静下来；绿色会让我们的眼睛得到休息，对我们的身体也有好处。★ 这段话主要谈颜色：",
+      "options": ["A の区别", "B の故事", "C 对眼睛的好处", "D 与心情的关系"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 86,
+      "original_id": 1242,
+      "type": "writing_construction",
+      "text": "86. 组句：爷爷 非常 感兴趣 对 京剧",
+      "options": ["爷爷对京剧非常感兴趣。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 87,
+      "original_id": 1241,
+      "type": "writing_construction",
+      "text": "87. 组句：请 那张表格 把 两份 打印",
+      "options": ["请把那张表格打印两份。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 88,
+      "original_id": 1240,
+      "type": "writing_construction",
+      "text": "88. 组句：很详细 这个传真机的 写 得 说明书",
+      "options": ["这个传真机的说明书写得很详细。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 89,
+      "original_id": 1239,
+      "type": "writing_construction",
+      "text": "89. 组句：2009年7月8号 我孙子 是 出生的",
+      "options": ["我孙子是2009年7月8号出生的。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 90,
+      "original_id": 1238,
+      "type": "writing_construction",
+      "text": "90. 组句：亿元 许多家饭店的 都超过了 年收入",
+      "options": ["许多家饭店的年收入都超过了亿元。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 91,
+      "original_id": 1237,
+      "type": "writing_construction",
+      "text": "91. 组句：保证 我 完成 按时 任务",
+      "options": ["我保证按时完成任务。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 92,
+      "original_id": 1236,
+      "type": "writing_construction",
+      "text": "92. 组句：这个 没有 语法错误 句子",
+      "options": ["这个句子没有语法错误。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 93,
+      "original_id": 1235,
+      "type": "writing_construction",
+      "text": "93. 组句：马上 结束了 就要 这场足球赛",
+      "options": ["这场足球赛马上就要结束了。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 94,
+      "original_id": 1234,
+      "type": "writing_construction",
+      "text": "94. 组句：不知道 难道你 连这个规定 都",
+      "options": ["难道你连这个规定都不知道？"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 95,
+      "original_id": 1233,
+      "type": "writing_construction",
+      "text": "95. 组句：顺利 祝 你们 这次访问 一切",
+      "options": ["祝你们这次访问一切顺利。"],
+      "correct_answer_index": 0
+    }
+  ]
+}

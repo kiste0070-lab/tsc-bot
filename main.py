@@ -4,6 +4,8 @@ import re
 import logging
 import calendar
 import sys
+import json
+import random
 from datetime import datetime
 from dotenv import load_dotenv
 from google import genai
@@ -22,14 +24,14 @@ import asyncio
 # ============================================================
 
 # 로깅 설정
-log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(
     level=logging.INFO,
     format=log_format,
     handlers=[
         logging.FileHandler("tsc_bot.log", encoding="utf-8"),
-        logging.StreamHandler()
-    ]
+        logging.StreamHandler(),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -40,9 +42,16 @@ logging.getLogger("httpcore").setLevel(logging.WARNING)
 # ============================================================
 # 정규식 캐싱 (성능 최적화)
 # ============================================================
-PART_PATTERN = re.compile(r'^(\d)부분\s*:\s*(.+)$')
-HSK_EVAL_PATTERN = re.compile(r'\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]')
-MISTAKE_PATTERN = re.compile(r'\[자주 틀리는 표현\](.*?)(?:\n|$)')
+PART_PATTERN = re.compile(r"^(\d)부분\s*:\s*(.+)$")
+HSK_EVAL_PATTERN = re.compile(
+    r"\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]"
+)
+MISTAKE_PATTERN = re.compile(r"\[자주 틀리는 표현\](.*?)(?:\n|$)")
+# 자주 틀리는 표현 + 문제 + 답변 파싱용 (예시 포함 버전)
+MISTAKE_WITH_ANSWER_PATTERN = re.compile(
+    r"\[자주 틀리는 표현\]\s*(?:\(예시\)\s*)?(.*?)\*\*문제\*\*:\s*(.*?)\*\*답변\*\*:\s*(.*?)$",
+    re.DOTALL,
+)
 
 # 1. 환경 설정
 load_dotenv()
@@ -58,6 +67,7 @@ except (ValueError, TypeError):
 client = genai.Client(api_key=GEMINI_KEY)
 MODEL_ID = "gemini-3.1-flash-lite-preview"
 
+
 # ============================================================
 # 상태 관리: 클래스 기반 (global 변수 제거)
 # ============================================================
@@ -65,40 +75,103 @@ class TSCSession:
     def __init__(self):
         self.user_sessions: dict = {}
         self.stop_requested: bool = False
-    
+
     def add_session(self, chat_id: int, history: list):
         self.user_sessions[chat_id] = {"history": history}
-    
+
     def get_session(self, chat_id: int) -> dict | None:
         return self.user_sessions.get(chat_id)
-    
+
     def add_to_history(self, chat_id: int, role: str, text: str):
         if chat_id in self.user_sessions:
             self.user_sessions[chat_id]["history"].append(
                 types.Content(role=role, parts=[types.Part(text=text)])
             )
 
+
 session = TSCSession()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MONTHLY_PLAN_DIR = os.path.join(BASE_DIR, "Monthly_Plan")
+HSK_BANK_DIR = os.path.join(BASE_DIR, "hsk_bank")
+
+
+# ============================================================
+# HSK 문제 Bank 로더
+# ============================================================
+def load_hsk_problems() -> list:
+    """HSK JSON 파일에서 문제를 무작위로 Load"""
+    problems = []
+    if not os.path.exists(HSK_BANK_DIR):
+        return problems
+
+    for filename in os.listdir(HSK_BANK_DIR):
+        if not filename.endswith(".json"):
+            continue
+        filepath = os.path.join(HSK_BANK_DIR, filename)
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if "questions" in data:
+                    for q in data["questions"]:
+                        # 문제가 있는 경우만 추가
+                        text = q.get("text", "").strip()
+                        options = q.get("options", [])
+                        correct_idx = q.get("correct_answer_index")
+                        if text and options and correct_idx is not None:
+                            problems.append(
+                                {
+                                    "question": text,
+                                    "options": options,
+                                    "answer": options[correct_idx]
+                                    if correct_idx < len(options)
+                                    else "",
+                                    "type": q.get("type", "unknown"),
+                                }
+                            )
+        except Exception as e:
+            logger.warning(f"HSK 뱅크 로드 오류 {filename}: {e}")
+    return problems
+
+
+def get_random_hsk_problem(problems: list) -> dict | None:
+    """무작위로 문제 1개 선택"""
+    return random.choice(problems) if problems else None
+
+
+# 캐시된 문제列表
+_hsk_problems_cache = None
+
+
+def get_cached_hsk_problems() -> list:
+    """캐시된 HSK 문제 반환"""
+    global _hsk_problems_cache
+    if _hsk_problems_cache is None:
+        _hsk_problems_cache = load_hsk_problems()
+    return _hsk_problems_cache
 
 
 def contains_hangul(text: str) -> bool:
-    clean_text = text.replace("부분", "").replace("문제", "").replace("답변", "").replace(" ", "")
-    return any("\uAC00" <= ch <= "\uD7A3" for ch in (clean_text or ""))
+    clean_text = (
+        text.replace("부분", "")
+        .replace("문제", "")
+        .replace("답변", "")
+        .replace(" ", "")
+    )
+    return any("\uac00" <= ch <= "\ud7a3" for ch in (clean_text or ""))
 
 
 # 2. TTS 변환 및 발송 함수
 async def send_voice_message(context, chat_id, text):
     try:
-        tts = gTTS(text=text, lang='zh-CN')
+        tts = gTTS(text=text, lang="zh-CN")
         voice_file = io.BytesIO()
         tts.write_to_fp(voice_file)
         voice_file.seek(0)
         await context.bot.send_voice(chat_id=chat_id, voice=voice_file)
     except Exception as e:
         logger.error(f"TTS 에러: {e}")
+
 
 # [Monthly_Plan] 중복 확인 프로세스
 def get_existing_problems():
@@ -124,22 +197,28 @@ def get_existing_problems():
             logger.warning(f"파일 읽기 오류 {filename}: {e}")
     return existing
 
+
 def check_duplicate(new_problems, existing_problems):
+    """중복 검사 - Set 사용으로 O(n) 최적화"""
+    # Set 변환으로 O(1) 조회
+    existing_set = set(existing_problems)
     duplicates = []
+
     for new_prob in new_problems:
         new_stripped = new_prob.strip()
-        for exist_prob in existing_problems:
-            exist_stripped = exist_prob.strip()
-            # Exact match
-            if new_stripped == exist_stripped:
-                duplicates.append(new_stripped)
-                break
-            # High similarity: one contains the other (for longer texts)
-            if len(new_stripped) > 10 and len(exist_stripped) > 10:
-                if new_stripped in exist_stripped or exist_stripped in new_stripped:
-                    duplicates.append(new_stripped)
-                    break
+        # Exact match - O(1)
+        if new_stripped in existing_set:
+            duplicates.append(new_stripped)
+            continue
+        # High similarity check - 필요한 경우만
+        if len(new_stripped) > 10:
+            for exist in existing_set:
+                if len(exist) > 10:
+                    if new_stripped in exist or exist in new_stripped:
+                        duplicates.append(new_stripped)
+                        break
     return duplicates
+
 
 def generate_monthly_plan(year, month):
     plan_filename = f"{year}_{month:02d}.md"
@@ -155,7 +234,9 @@ def generate_monthly_plan(year, month):
     existing_problems = get_existing_problems()
     existing_context = ""
     if existing_problems:
-        existing_context = "\n[이미 사용된 문제 목록 - 절대 중복 금지]\n" + "\n".join(existing_problems[:100])
+        existing_context = "\n[이미 사용된 문제 목록 - 절대 중복 금지]\n" + "\n".join(
+            existing_problems[:100]
+        )
 
     # Get number of days in the month
     num_days = calendar.monthrange(year, month)[1]
@@ -198,11 +279,10 @@ def generate_monthly_plan(year, month):
     max_retries = 3
     for attempt in range(max_retries):
         try:
-            logger.info(f"월간 계획 생성 시도 {attempt + 1}/{max_retries}: {year}년 {month}월")
-            response = client.models.generate_content(
-                model=MODEL_ID,
-                contents=prompt
+            logger.info(
+                f"월간 계획 생성 시도 {attempt + 1}/{max_retries}: {year}년 {month}월"
             )
+            response = client.models.generate_content(model=MODEL_ID, contents=prompt)
             plan_content = response.text.strip()
 
             # Parse and check for duplicates (정규식 캐시 사용)
@@ -214,8 +294,13 @@ def generate_monthly_plan(year, month):
 
             duplicates = check_duplicate(new_problems, existing_problems)
             if duplicates:
-                logger.warning(f"중복 문제 발견 ({len(duplicates)}개): {duplicates[:3]}... 재생성 시도")
-                prompt += f"\n\n[이전 시도에서 중복된 문제들 - 이번에는 절대 사용하지 마세요]\n" + "\n".join(duplicates)
+                logger.warning(
+                    f"중복 문제 발견 ({len(duplicates)}개): {duplicates[:3]}... 재생성 시도"
+                )
+                prompt += (
+                    f"\n\n[이전 시도에서 중복된 문제들 - 이번에는 절대 사용하지 마세요]\n"
+                    + "\n".join(duplicates)
+                )
                 continue
 
             # Write the plan file
@@ -224,7 +309,9 @@ def generate_monthly_plan(year, month):
                 f.write(plan_content)
                 f.write("\n")
 
-            logger.info(f"월간 계획 생성 완료: {plan_filename} ({len(new_problems)}개 문제)")
+            logger.info(
+                f"월간 계획 생성 완료: {plan_filename} ({len(new_problems)}개 문제)"
+            )
             return True
 
         except Exception as e:
@@ -235,6 +322,7 @@ def generate_monthly_plan(year, month):
 
     logger.error(f"월간 계획 생성 실패: {year}년 {month}월 (최대 재시도 초과)")
     return False
+
 
 def get_today_problems(year, month, day):
     plan_filename = f"{year}_{month:02d}.md"
@@ -282,9 +370,13 @@ def get_today_problems(year, month, day):
         logger.error(f"오늘 문제 읽기 오류: {e}")
         return None
 
+
 # [추가] 오답노트 저장 함수
 def save_wrong_note(user_text: str, model_text: str):
-    if any(cmd in user_text.replace(" ", "") for cmd in ["문제설명", "문제해석", "수업종료"]):
+    if any(
+        cmd in user_text.replace(" ", "")
+        for cmd in ["문제설명", "문제해석", "수업종료"]
+    ):
         return
     if not contains_hangul(model_text):
         return
@@ -318,31 +410,43 @@ def save_wrong_note(user_text: str, model_text: str):
         f.write(f"**💡 첨삭/교정:**\n{model_text}\n\n")
         f.write("---\n")
 
+
 def parse_hsk_eval(text: str):
     """[HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 태그를 파싱"""
     match = HSK_EVAL_PATTERN.search(text)
     if match:
-        return {
-            "종합": match.group(1),
-            "단어": match.group(2),
-            "문법": match.group(3)
-        }
+        return {"종합": match.group(1), "단어": match.group(2), "문법": match.group(3)}
     return None
 
+
 def parse_frequent_mistake(text: str):
-    """[자주 틀리는 표현] 내용 추출"""
+    """[자주 틀리는 표현] + 문제/답변 추출 (문제+답변 포함 버전)"""
+    # 문제/답변 포함 버전 우선 시도 (예시 포함)
+    match_with_answer = MISTAKE_WITH_ANSWER_PATTERN.search(text)
+    if match_with_answer:
+        return {
+            "expression": match_with_answer.group(2).strip(),
+            "problem": match_with_answer.group(3).strip(),
+            "answer": match_with_answer.group(4).strip(),
+            "has_details": True,
+        }
+    # 기존 버전 (하위 호환)
     match = MISTAKE_PATTERN.search(text)
     if match:
-        return match.group(1).strip()
+        return {"expression": match.group(1).strip(), "has_details": False}
     return None
+
 
 def strip_hsk_eval(text: str):
     """응답에서 HSK_EVAL 태그를 제거"""
-    return HSK_EVAL_PATTERN.sub('', text).strip()
+    return HSK_EVAL_PATTERN.sub("", text).strip()
+
 
 def strip_frequent_mistake(text: str):
-    """응답에서 자주 틀리는 표현 태그를 제거"""
-    return MISTAKE_PATTERN.sub('', text, flags=re.DOTALL).strip()
+    """응답에서 자주 틀리는 표현 태그를 제거 (문제/답변 포함 버전)"""
+    text = MISTAKE_WITH_ANSWER_PATTERN.sub("", text, flags=re.DOTALL)
+    text = MISTAKE_PATTERN.sub("", text, flags=re.DOTALL)
+    return text.strip()
 
 
 def get_today_wrong_notes():
@@ -350,28 +454,42 @@ def get_today_wrong_notes():
     now = datetime.now()
     month_str = now.strftime("%Y%m")
     file_path = os.path.join(BASE_DIR, "wrong_notes", f"{month_str}_wrong_notes.md")
-    
+
     if not os.path.exists(file_path):
         return ""
-    
+
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read()
     except Exception:
         return ""
 
+
 # 3. 시스템 프롬프트
-def get_system_prompt(problems_text, today_wrong_notes=""):
+def get_system_prompt(problems_text, today_wrong_notes="", hsk_problem=None):
     wrong_notes_section = ""
-    if today_wrong_notes:
+    if today_wrong_notes and hsk_problem:
         wrong_notes_section = f"""
 
 [오늘의 오답 참고]
 오늘의 수업에서 사용자가 다음과 같이 답변했고, 첨삭을 받았습니다:
+
 {today_wrong_notes}
 
-위 오답 내용을 참조하여 사용자가 자주 틀리는 표현이나 문법 패턴을 파악하고, 수업 종료 시 [자주 틀리는 표현] 형태로 한 줄 정도 제공해주세요.
-예: [자주 틀리는 표현] 和(hé)와 함께 쓰는 표현을 자주 잊으시네요.
+위 오답 내용을 참조하여 사용자가 자주 틀리는 표현이나 문법 패턴을 파악하고, 수업 종료 시 다음 형식으로 제공해주세요:
+[자주 틀리는 표현] (예시) 설명문
+**문제**: (아래 HSK 문제를 그대로 사용)
+**답변**: (아래 HSK 문제의 정답)
+
+[HSK 연습 문제]
+문제: {hsk_problem["question"]}
+선택지: {", ".join(hsk_problem["options"])}
+정답: {hsk_problem["answer"]}
+
+예시:
+[자주 틀리는 표현] 和(hé)와 함께 쓸 표현을 자주 잊으시네요.
+**문제**: 虽然现在离（　）还有段时间，但是不少人已经开始准备过年的东西了。
+**답변**: C. 春节
 """
 
     return f"""
@@ -411,8 +529,13 @@ def get_system_prompt(problems_text, today_wrong_notes=""):
 {wrong_notes_section}
 """
 
+
 async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
-    chat_id = context.effective_chat.id if hasattr(context, "effective_chat") and context.effective_chat else CHAT_ID
+    chat_id = (
+        context.effective_chat.id
+        if hasattr(context, "effective_chat") and context.effective_chat
+        else CHAT_ID
+    )
 
     logger.info(f"수업 시작 (Chat ID: {chat_id})")
 
@@ -425,7 +548,10 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     # 오늘 문제 읽기
     problems = get_today_problems(year, month, day)
     if not problems:
-        await context.bot.send_message(chat_id=chat_id, text=f"죄송합니다. {year}-{month:02d}-{day:02d} 일자 문제를 찾을 수 없습니다. 관리자에게 문의하세요.")
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=f"죄송합니다. {year}-{month:02d}-{day:02d} 일자 문제를 찾을 수 없습니다. 관리자에게 문의하세요.",
+        )
         session.stop_requested = True
         return
 
@@ -436,13 +562,18 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         if part in problems:
             problems_text += f"{part_names[part]} : {problems[part]}\n"
 
-    # 오늘의 오답노트 가져오기
+    # 오늘의 오답노트 가져오기 + HSK 문제 bank에서 무작위 문제 선택
     today_wrong_notes = get_today_wrong_notes()
-    prompt = get_system_prompt(problems_text, today_wrong_notes)
+    hsk_problem = get_random_hsk_problem(get_cached_hsk_problems())
+    prompt = get_system_prompt(problems_text, today_wrong_notes, hsk_problem)
 
-    session.add_session(chat_id, [types.Content(role="user", parts=[types.Part(text=prompt)])])
+    session.add_session(
+        chat_id, [types.Content(role="user", parts=[types.Part(text=prompt)])]
+    )
 
-    chat = client.chats.create(model=MODEL_ID, history=session.get_session(chat_id)["history"])
+    chat = client.chats.create(
+        model=MODEL_ID, history=session.get_session(chat_id)["history"]
+    )
     response = chat.send_message(
         "스몰토크나 인사말 없이, 위의 5개 문제를 지정된 형식(2부분 : 문제, 3부분 : 문제 ...)에 맞게 한 번에 제공해줘."
     )
@@ -453,6 +584,7 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         await send_voice_message(context, chat_id, text_response)
 
     session.add_to_history(chat_id, "model", text_response)
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.effective_chat.id
@@ -492,7 +624,16 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text(hsk_msg)
 
             if frequent_mistake:
-                mistake_msg = f"[자주 틀리는 표현] {frequent_mistake}"
+                if frequent_mistake.get("has_details"):
+                    # 문제/답변 포함 버전
+                    mistake_msg = (
+                        f"[자주 틀리는 표현] {frequent_mistake['expression']}\n"
+                        f"**문제**: {frequent_mistake['problem']}\n"
+                        f"**답변**: {frequent_mistake['answer']}"
+                    )
+                else:
+                    # 기존 버전 (하위 호환)
+                    mistake_msg = f"[자주 틀리는 표현] {frequent_mistake['expression']}"
                 await update.message.reply_text(mistake_msg)
 
         await update.message.reply_text("수업을 종료합니다. 수고하셨습니다!")
@@ -505,7 +646,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     chat_session = session.get_session(chat_id)
-    if not chat_session: return
+    if not chat_session:
+        return
 
     chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
     response = chat.send_message(update.message.text)
@@ -517,7 +659,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     save_wrong_note(user_text, full_text)
 
     if "수업 종료" not in full_text:
-        should_send_voice = (not is_translation_request) and (not contains_hangul(full_text))
+        should_send_voice = (not is_translation_request) and (
+            not contains_hangul(full_text)
+        )
         if should_send_voice:
             await send_voice_message(context, chat_id, full_text)
         session.add_to_history(chat_id, "user", update.message.text)
@@ -525,7 +669,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         # 봇 응답에 "수업 종료"가 포함되면 자동으로 종료 (사용자 입력 대기 안 함)
         logger.info("수업 종료 응답 감지 - 봇을 정지합니다.")
-        
+
         # HSK 평가 결과 파싱 및 표시 (중복 코드 함수화)
         hsk_eval = parse_hsk_eval(full_text)
         frequent_mistake = parse_frequent_mistake(full_text)
@@ -544,7 +688,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(hsk_msg)
 
         if frequent_mistake:
-            mistake_msg = f"[자주 틀리는 표현] {frequent_mistake}"
+            if frequent_mistake.get("has_details"):
+                mistake_msg = (
+                    f"[자주 틀리는 표현] {frequent_mistake['expression']}\n"
+                    f"**문제**: {frequent_mistake['problem']}\n"
+                    f"**답변**: {frequent_mistake['answer']}"
+                )
+            else:
+                mistake_msg = f"[자주 틀리는 표현] {frequent_mistake['expression']}"
             await update.message.reply_text(mistake_msg)
 
         logger.info("수업이 종료되었습니다. 봇을 정지합니다.")
@@ -563,7 +714,9 @@ async def main():
     logger.info("텔레그램 봇 초기화 중...")
     try:
         application = Application.builder().token(TELEGRAM_TOKEN).build()
-        application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        application.add_handler(
+            MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message)
+        )
 
         await application.initialize()
         await application.start()
@@ -594,6 +747,7 @@ async def main():
     except Exception as e:
         logger.error(f"봇 실행 중 에러 발생: {e}")
         sys.exit(1)  # 에러 시 exit code 1 반환
+
 
 if __name__ == "__main__":
     try:

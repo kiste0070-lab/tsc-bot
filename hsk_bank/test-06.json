@@ -1,0 +1,152 @@
+{
+  "quiz_id": 7,
+  "title": "HSK 4 Online Mock Exam Series 6",
+  "source": "Mandarin Zone (mandarinzone.com)",
+  "total_questions": 100,
+  "questions": [
+    {
+      "number": 46,
+      "original_id": 1989,
+      "type": "fill_in_blank",
+      "text": "46. 不管出现什么问题，请（）与我们联系。",
+      "options": ["A 及时", "B 钥匙", "C 回忆", "D 坚持", "E 适合", "F 由于"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 47,
+      "original_id": 1988,
+      "type": "fill_in_blank",
+      "text": "47. 这件衣服很（）你，而且正在打折，买吧。",
+      "options": ["A 及时", "B 钥匙", "C 回忆", "D 坚持", "E 适合", "F 由于"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 48,
+      "original_id": 1987,
+      "type": "fill_in_blank",
+      "text": "48. 这些发黄的老照片让那位老奶奶（）起很多年轻时候的事。",
+      "options": ["A 及时", "B 钥匙", "C 回忆", "D 坚持", "E 适合", "F 由于"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 51,
+      "original_id": 1984,
+      "type": "fill_in_blank",
+      "text": "51. A：您是什么时候来北京的？ B：2003年，我大学（）后就来了。",
+      "options": ["A 页", "B 收拾", "C 温度", "D 不过", "E 毕业", "F 窄"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 52,
+      "original_id": 1983,
+      "type": "fill_in_blank",
+      "text": "52. A：听说你换工作了，新工作怎么样？ B：最近还在找，（）不太顺利，还没找到。",
+      "options": ["A 页", "B 收拾", "C 温度", "D 不过", "E 毕业", "F 窄"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 66,
+      "original_id": 1969,
+      "type": "reading_comprehension",
+      "text": "66. 根据这段话，赛车：",
+      "options": ["A 很流行", "B 十分危险", "C 特别有趣", "D 比较轻松"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 67,
+      "original_id": 1968,
+      "type": "reading_comprehension",
+      "text": "67. 这段话主要讲什么？",
+      "options": ["A 我的爱好", "B 什么是烦恼", "C 烦恼时怎么办", "D 为什么会烦恼"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 68,
+      "original_id": 1967,
+      "type": "reading_comprehension",
+      "text": "68. 作者认为广告：",
+      "options": ["A 太多了", "B 内容无聊", "C 很受欢迎", "D 范围要扩大"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 69,
+      "original_id": 1966,
+      "type": "reading_comprehension",
+      "text": "69. 成功的人：",
+      "options": ["A 爱加班", "B 脾气好", "C 不怕失败", "D 遇事不冷静"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 70,
+      "original_id": 1965,
+      "type": "reading_comprehension",
+      "text": "70. 他在弹钢琴方面：",
+      "options": ["A 很笨", "B 很优秀", "C 很一般", "D 很马虎"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 71,
+      "original_id": 1964,
+      "type": "reading_comprehension",
+      "text": "71. 心与心之间的距离，主要和什么有关？",
+      "options": ["A 感情", "B 性别", "C 职业", "D 文化"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 72,
+      "original_id": 1963,
+      "type": "reading_comprehension",
+      "text": "72. 怎样才能更快地适应新环境？",
+      "options": ["A 多购物", "B 少抽烟", "C 跟人聊天", "D 与人做生意"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 77,
+      "original_id": 1958,
+      "type": "reading_comprehension",
+      "text": "77. 地球上的水：",
+      "options": ["A 都能喝", "B 污染严重", "C 温度很高", "D 主要在海洋"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 78,
+      "original_id": 1957,
+      "type": "reading_comprehension",
+      "text": "78. 根据这段话，可以知道：",
+      "options": ["A 他在等车", "B 他是司机", "C 没有座位了", "D 他要去商店"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 79,
+      "original_id": 1956,
+      "type": "reading_comprehension",
+      "text": "79. 跟人交流时要注意什么？",
+      "options": ["A 说普通话", "B 多听少说", "C 安排好时间", "D 认真听别人说"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 80,
+      "original_id": 1955,
+      "type": "reading_comprehension",
+      "text": "80. 弃车族\"指的是什么样的人？\"",
+      "options": ["A 车丢了", "B 没钱买车", "C 有车不开", "D 开车技术不好"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 82,
+      "original_id": 1953,
+      "type": "reading_comprehension",
+      "text": "82. 发现别人有缺点时，应该：",
+      "options": ["A 保护他", "B 同情他", "C 帮助他", "D 反对他"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 83,
+      "original_id": 1952,
+      "type": "reading_comprehension",
+      "text": "83. 这段话主要告诉我们什么？",
+      "options": ["A 人都有缺点", "B 要信任别人", "C 什么是幸福", "D 怎样对别人好"],
+      "correct_answer_index": 3
+    }
+  ]
+}

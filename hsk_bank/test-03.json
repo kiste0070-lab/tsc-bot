@@ -1,0 +1,296 @@
+{
+  "quiz_id": 4,
+  "title": "HSK 4 Online Mock Exam H41002",
+  "source": "Mandarin Zone (mandarinzone.com)",
+  "total_questions": 100,
+  "questions": [
+    {
+      "number": 46,
+      "original_id": 982,
+      "type": "fill_in_blank",
+      "text": "46. 他从网站上看到了这个激动人心的（ ）。",
+      "options": ["A 冷静", "B 地址", "C 引起", "D 坚持", "E 禁止", "F 消息"],
+      "correct_answer_index": 5
+    },
+    {
+      "number": 47,
+      "original_id": 981,
+      "type": "fill_in_blank",
+      "text": "47. 这儿写着\"（ ）停车\"，他们只好把车停在那边了。",
+      "options": ["A 冷静", "B 地址", "C 引起", "D 坚持", "E 禁止", "F 消息"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 48,
+      "original_id": 980,
+      "type": "fill_in_blank",
+      "text": "48. 喂，告诉我你的（ ），我准备给你寄几本书。",
+      "options": ["A 冷静", "B 地址", "C 引起", "D 坚持", "E 禁止", "F 消息"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 49,
+      "original_id": 979,
+      "type": "fill_in_blank",
+      "text": "49. 人与人之间如果缺少交流，可能就会（ ）误会。",
+      "options": ["A 冷静", "B 地址", "C 引起", "D 坚持", "E 禁止", "F 消息"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 50,
+      "original_id": 978,
+      "type": "fill_in_blank",
+      "text": "50. 问题越是复杂时，你越要（ ），千万别着急。",
+      "options": ["A 冷静", "B 地址", "C 引起", "D 坚持", "E 禁止", "F 消息"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 51,
+      "original_id": 977,
+      "type": "fill_in_blank",
+      "text": "51. A：我的（ ）在叫了，早上只吃了一小块儿蛋糕。B：饿了？我包里有巧克力，给你。",
+      "options": ["A 填", "B 正式", "C 温度", "D 酸", "E 广播", "F 肚子"],
+      "correct_answer_index": 5
+    },
+    {
+      "number": 52,
+      "original_id": 976,
+      "type": "fill_in_blank",
+      "text": "52. A：这两瓶饮料有什么区别吗？B：左边这瓶有点儿（ ），右边这瓶是甜的。",
+      "options": ["A 填", "B 正式", "C 温度", "D 酸", "E 广播", "F 肚子"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 53,
+      "original_id": 975,
+      "type": "fill_in_blank",
+      "text": "53. A：快点儿，咱们的飞机就要起飞了。B：没事，（ ）里说，国际航班都推迟起飞了，咱可以再逛逛。",
+      "options": ["A 填", "B 正式", "C 温度", "D 酸", "E 广播", "F 肚子"],
+      "correct_answer_index": 4
+    },
+    {
+      "number": 54,
+      "original_id": 974,
+      "type": "fill_in_blank",
+      "text": "54. A：最近怎么穿得这么（ ）？很精神啊。B：我现在开始上班了，这是公司的规定。",
+      "options": ["A 填", "B 正式", "C 温度", "D 酸", "E 广播", "F 肚子"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 55,
+      "original_id": 973,
+      "type": "fill_in_blank",
+      "text": "55. A：你好，我想办一张信用卡。B：好的，先生，请您先（ ）一下这张申请表。",
+      "options": ["A 填", "B 正式", "C 温度", "D 酸", "E 广播", "F 肚子"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 56,
+      "original_id": 972,
+      "type": "fill_in_blank",
+      "text": "56. 请将下列句子正确排序：A 做事情往往需要照顾大的方面 B 而放弃掉\"森林\" C 换句话说，就是不要仅仅为了一棵\"大树\"",
+      "options": ["A ABC", "B ACB", "C BAC", "D BCA", "E CAB", "F CBA"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 66,
+      "original_id": 962,
+      "type": "reading_comprehension",
+      "text": "66. 司机喝酒后不允许开车。因为无论对自己还是对其他人，这样做都是极其危险的。根据这段话，司机：",
+      "options": ["A 很危险", "B 爱喝啤酒", "C 都很友好", "D 酒后不能开车"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 67,
+      "original_id": 961,
+      "type": "reading_comprehension",
+      "text": "67. 最有用的人，不一定是最能说的人。上天给我们两只耳朵、一个嘴，就是让我们多听少说的。学会多听，说明一个人真正成熟了。这段话告诉我们：",
+      "options": ["A 要多听", "B 要准时", "C 要多表扬别人", "D 要严格要求自己"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 68,
+      "original_id": 960,
+      "type": "reading_comprehension",
+      "text": "68. 孩子从小就要养成管理自己的好习惯。管理自己不但指自己的事情自己做，更重要的是时间管理，让孩子会计划自己的时间，今天应该完成的事情就不能留到明天，不要总说\"来不及了\"。为什么有的孩子总说\"来不及了\"？",
+      "options": ["A 太懒", "B 很孤单", "C 爱开玩笑", "D 不会管理时间"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 69,
+      "original_id": 959,
+      "type": "reading_comprehension",
+      "text": "69. 您看这个沙发怎么样？我们年底有活动，正在打折，比平时便宜了一千块。不过您放心，质量肯定不\"打折\"，这种沙发是今年最流行的，有很多种颜色可以选择，您可以考虑一下。这种沙发：",
+      "options": ["A 不打折", "B 特别软", "C 样子很流行", "D 质量不合格"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 70,
+      "original_id": 958,
+      "type": "reading_comprehension",
+      "text": "70. 当我觉得累的时候，我就找一个安静的地方，一边喝茶一边听音乐。弟弟正好和我相反，这种时候，他喜欢去热闹的地方，和别人一起唱歌、跳舞。弟弟累的时候：",
+      "options": ["A 讨厌约会", "B 喜欢玩电脑", "C 会找我聊天", "D 会去唱歌跳舞"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 71,
+      "original_id": 957,
+      "type": "reading_comprehension",
+      "text": "71. 只有动作没有感情的表演是没有生命力的，一个好的演员，想要拉近和观众的距离，就要学会用感情和观众进行对话与交流。表演要具有生命力，应该重视什么？",
+      "options": ["A 生命", "B 感情", "C 动作", "D 感觉"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 72,
+      "original_id": 956,
+      "type": "reading_comprehension",
+      "text": "72. 这是一家在当地非常有名的面馆儿，历史已经超过50年了。它一直只卖一种东西：牛肉面。由于面的味道很特别，在众多食客中名气很大。这家面馆儿：",
+      "options": ["A 顾客不多", "B 只卖羊肉汤", "C 在全国很有名", "D 有半个世纪了"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 73,
+      "original_id": 955,
+      "type": "reading_comprehension",
+      "text": "73. 晚上，我刚刚躺下，就响起了敲门声。一猜就知道是和我一起租房的那个人又没带钥匙。他好像特别马虎，虽然每次都红着脸向我说抱歉、打扰了，可过不了几天，就又能听到他的敲门声了。敲门的那个人怎么了？",
+      "options": ["A 生病了", "B 走错门了", "C 工作太忙", "D 忘拿钥匙了"],
+      "correct_answer_index": 3
+    },
+    {
+      "number": 74,
+      "original_id": 954,
+      "type": "reading_comprehension",
+      "text": "74. 同情是最美好的情感之一，然而同情并不是高高在上的关心，它应该是对别人经历的情感的理解、尊重和支持。这段话认为，同情：",
+      "options": ["A 很无聊", "B 让人难受", "C 不是可怜", "D 是暂时的"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 75,
+      "original_id": 953,
+      "type": "reading_comprehension",
+      "text": "75. 猜猜我奶奶给了我什么生日礼物？一个照相机！正好明天去海洋馆，我来给你们照相吧。奶奶给孙子买照相机，是因为：",
+      "options": ["A 想鼓励他", "B 他过生日", "C 春节快到了", "D 要去海洋馆"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 76,
+      "original_id": 952,
+      "type": "reading_comprehension",
+      "text": "76. 这座楼一共有28层，为了节约您的时间，3号、4号电梯17层以下不停，直接到17-28层，如果您要到1-16层，请乘坐西边的1号和2号电梯。1号电梯可以去哪层？",
+      "options": ["A 16", "B 17", "C 18", "D 19"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 77,
+      "original_id": 951,
+      "type": "reading_comprehension",
+      "text": "77. 我姓李，是各位的导游。这是大家的护照和房卡，放下行李后请到这里集合，我们一会儿去吃饭。晚上有京剧，座位要提前联系，想看的现在报名。导游让大家报名去：",
+      "options": ["A 参观", "B 吃饭", "C 看京剧", "D 参加演出"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 78,
+      "original_id": 950,
+      "type": "reading_comprehension",
+      "text": "78. 经过他的努力，公司的生意越做越大，最近又在三个城市开了新的分公司。一切都在往好的方向发展，他也更有信心了。公司现在怎么样？",
+      "options": ["A 收入减少", "B 发展很快", "C 主要制造家具", "D 不适应市场变化"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 79,
+      "original_id": 949,
+      "type": "reading_comprehension",
+      "text": "79. 我们对失败应该有正确的认识。偶尔的失败其实可以让我们清楚自己还有什么地方需要提高，这可以帮助我们走向最后的成功。\"这\"指的是：",
+      "options": ["A 仔细", "B 认真", "C 失败", "D 准确的判断"],
+      "correct_answer_index": 2
+    },
+    {
+      "number": 80,
+      "original_id": 948,
+      "type": "reading_comprehension",
+      "text": "80. 年轻人刚刚进入社会的时候，不要太急着赚钱，不要眼睛里只有工资和奖金。实际上，正确的做法应该是，在工作的前几年，重点要丰富自己的工作经验，学习与同事们交流的方法，积累专业的知识和技术，还有，要懂得什么是职业的态度等。这些比收入重要多了。什么更重要？",
+      "options": ["A 经验", "B 友谊", "C 标准", "D 过程"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 86,
+      "original_id": 942,
+      "type": "writing_construction",
+      "text": "86. 请将下列词语组成正确的句子：好处 抽烟 对身体 没有",
+      "options": ["抽烟对身体没有好处。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 87,
+      "original_id": 941,
+      "type": "writing_construction",
+      "text": "87. 请将下列词语组成正确的句子：我 陪叔叔 去长城 看看 打算",
+      "options": ["我打算陪叔叔去长城看看。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 88,
+      "original_id": 940,
+      "type": "writing_construction",
+      "text": "88. 请将下列词语组成正确的句子：个 又脏又破 那 白色的盒子",
+      "options": ["那个白色的盒子又脏又破。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 89,
+      "original_id": 939,
+      "type": "writing_construction",
+      "text": "89. 请将下列词语组成正确的句子：妹妹 弹钢琴的声音 吵醒了 把爷爷",
+      "options": ["妹妹弹钢琴的声音把爷爷吵醒了。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 90,
+      "original_id": 938,
+      "type": "writing_construction",
+      "text": "90. 请将下列词语组成正确的句子：语言表达能力 经常阅读报纸 提高 能",
+      "options": ["经常阅读报纸能提高语言表达能力。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 91,
+      "original_id": 937,
+      "type": "writing_construction",
+      "text": "91. 请将下列词语组成正确的句子：举行 这次电影艺术节 在北京 也许 会",
+      "options": ["这次电影艺术节也许会在北京举行。", "也许这次电影艺术节会在北京举行。"],
+      "correct_answer_index": 1
+    },
+    {
+      "number": 92,
+      "original_id": 936,
+      "type": "writing_construction",
+      "text": "92. 请将下列词语组成正确的句子：整理 儿子的复习笔记 得 很详细",
+      "options": ["儿子的复习笔记整理得很详细。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 93,
+      "original_id": 935,
+      "type": "writing_construction",
+      "text": "93. 请将下列词语组成正确的句子：请假休息 重感冒 让他 不得不",
+      "options": ["重感冒让他不得不请假休息。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 94,
+      "original_id": 934,
+      "type": "writing_construction",
+      "text": "94. 请将下列词语组成正确的句子：范围 他说的问题 今天讨论的 超出了",
+      "options": ["他说的问题超出了今天讨论的范围。"],
+      "correct_answer_index": 0
+    },
+    {
+      "number": 95,
+      "original_id": 933,
+      "type": "writing_construction",
+      "text": "95. 请将下列词语组成正确的句子：告诉他 答案 你 最好 别",
+      "options": ["你最好别告诉他答案。"],
+      "correct_answer_index": 0
+    }
+  ]
+}
