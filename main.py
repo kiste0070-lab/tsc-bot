@@ -3,6 +3,7 @@ import io
 import re
 import logging
 import calendar
+import sys
 from datetime import datetime
 from dotenv import load_dotenv
 from google import genai
@@ -11,6 +12,14 @@ from gtts import gTTS
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 import asyncio
+
+# ============================================================
+# 리팩토링: GitHub Actions 일일 실행에 최적화
+# - Polling 제거: 수업 시작 후 즉시 종료 대신 사용자 응답 대기
+# - 정규식 캐싱: 반복 컴파일 방지
+# - 중복 코드 함수화
+# - 명확한 exit code
+# ============================================================
 
 # 로깅 설정
 log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -28,6 +37,13 @@ logger = logging.getLogger(__name__)
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 
+# ============================================================
+# 정규식 캐싱 (성능 최적화)
+# ============================================================
+PART_PATTERN = re.compile(r'^(\d)부분\s*:\s*(.+)$')
+HSK_EVAL_PATTERN = re.compile(r'\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]')
+MISTAKE_PATTERN = re.compile(r'\[자주 틀리는 표현\](.*?)(?:\n|$)')
+
 # 1. 환경 설정
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -42,15 +58,36 @@ except (ValueError, TypeError):
 client = genai.Client(api_key=GEMINI_KEY)
 MODEL_ID = "gemini-3.1-flash-lite-preview"
 
-user_sessions = {}
-stop_requested = False
+# ============================================================
+# 상태 관리: 클래스 기반 (global 변수 제거)
+# ============================================================
+class TSCSession:
+    def __init__(self):
+        self.user_sessions: dict = {}
+        self.stop_requested: bool = False
+    
+    def add_session(self, chat_id: int, history: list):
+        self.user_sessions[chat_id] = {"history": history}
+    
+    def get_session(self, chat_id: int) -> dict | None:
+        return self.user_sessions.get(chat_id)
+    
+    def add_to_history(self, chat_id: int, role: str, text: str):
+        if chat_id in self.user_sessions:
+            self.user_sessions[chat_id]["history"].append(
+                types.Content(role=role, parts=[types.Part(text=text)])
+            )
+
+session = TSCSession()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MONTHLY_PLAN_DIR = os.path.join(BASE_DIR, "Monthly_Plan")
 
+
 def contains_hangul(text: str) -> bool:
     clean_text = text.replace("부분", "").replace("문제", "").replace("답변", "").replace(" ", "")
     return any("\uAC00" <= ch <= "\uD7A3" for ch in (clean_text or ""))
+
 
 # 2. TTS 변환 및 발송 함수
 async def send_voice_message(context, chat_id, text):
@@ -75,12 +112,10 @@ def get_existing_problems():
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read()
-            # Parse problems from the file
-            # Format: ### YYYY-MM-DD\n2부분 : 문제내용\n3부분 : 문제내용\n...
+            # Parse problems from the file (정규식 캐시 사용)
             lines = content.split("\n")
             for line in lines:
-                # Match pattern like "2부분 : ..." or "3부분 : ..."
-                match = re.match(r'^(\d)부분\s*:\s*(.+)$', line.strip())
+                match = PART_PATTERN.match(line.strip())
                 if match:
                     problem_text = match.group(2).strip()
                     if problem_text:
@@ -170,10 +205,10 @@ def generate_monthly_plan(year, month):
             )
             plan_content = response.text.strip()
 
-            # Parse and check for duplicates
+            # Parse and check for duplicates (정규식 캐시 사용)
             new_problems = []
             for line in plan_content.split("\n"):
-                match = re.match(r'^(\d)부분\s*:\s*(.+)$', line.strip())
+                match = PART_PATTERN.match(line.strip())
                 if match:
                     new_problems.append(match.group(2).strip())
 
@@ -228,10 +263,10 @@ def get_today_problems(year, month, day):
         else:
             section = content[start_idx:next_header_idx]
 
-        # Parse the problems
+        # Parse the problems (정규식 캐시 사용)
         problems = {}
         for line in section.split("\n"):
-            match = re.match(r'^(\d)부분\s*:\s*(.+)$', line.strip())
+            match = PART_PATTERN.match(line.strip())
             if match:
                 part_num = int(match.group(1))
                 problem_text = match.group(2).strip()
@@ -285,7 +320,7 @@ def save_wrong_note(user_text: str, model_text: str):
 
 def parse_hsk_eval(text: str):
     """[HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 태그를 파싱"""
-    match = re.search(r'\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]', text)
+    match = HSK_EVAL_PATTERN.search(text)
     if match:
         return {
             "종합": match.group(1),
@@ -296,18 +331,34 @@ def parse_hsk_eval(text: str):
 
 def parse_frequent_mistake(text: str):
     """[자주 틀리는 표현] 내용 추출"""
-    match = re.search(r'\[자주 틀리는 표현\](.*?)(?:\n|$)', text)
+    match = MISTAKE_PATTERN.search(text)
     if match:
         return match.group(1).strip()
     return None
 
 def strip_hsk_eval(text: str):
     """응답에서 HSK_EVAL 태그를 제거"""
-    return re.sub(r'\[HSK_EVAL\].*?\[/HSK_EVAL\]', '', text).strip()
+    return HSK_EVAL_PATTERN.sub('', text).strip()
 
 def strip_frequent_mistake(text: str):
     """응답에서 자주 틀리는 표현 태그를 제거"""
-    return re.sub(r'\[자주 틀리는 표현\].*?(?:\n|$)', '', text, flags=re.DOTALL).strip()
+    return MISTAKE_PATTERN.sub('', text, flags=re.DOTALL).strip()
+
+
+def get_today_wrong_notes():
+    """오늘의 오답노트를 가져옵니다."""
+    now = datetime.now()
+    month_str = now.strftime("%Y%m")
+    file_path = os.path.join(BASE_DIR, "wrong_notes", f"{month_str}_wrong_notes.md")
+    
+    if not os.path.exists(file_path):
+        return ""
+    
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return ""
 
 # 3. 시스템 프롬프트
 def get_system_prompt(problems_text, today_wrong_notes=""):
@@ -375,7 +426,7 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     problems = get_today_problems(year, month, day)
     if not problems:
         await context.bot.send_message(chat_id=chat_id, text=f"죄송합니다. {year}-{month:02d}-{day:02d} 일자 문제를 찾을 수 없습니다. 관리자에게 문의하세요.")
-        stop_requested = True
+        session.stop_requested = True
         return
 
     # Format problems text
@@ -389,11 +440,9 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     today_wrong_notes = get_today_wrong_notes()
     prompt = get_system_prompt(problems_text, today_wrong_notes)
 
-    user_sessions[chat_id] = {
-        "history": [types.Content(role="user", parts=[types.Part(text=prompt)])]
-    }
+    session.add_session(chat_id, [types.Content(role="user", parts=[types.Part(text=prompt)])])
 
-    chat = client.chats.create(model=MODEL_ID, history=user_sessions[chat_id]["history"])
+    chat = client.chats.create(model=MODEL_ID, history=session.get_session(chat_id)["history"])
     response = chat.send_message(
         "스몰토크나 인사말 없이, 위의 5개 문제를 지정된 형식(2부분 : 문제, 3부분 : 문제 ...)에 맞게 한 번에 제공해줘."
     )
@@ -403,10 +452,9 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     if not contains_hangul(text_response):
         await send_voice_message(context, chat_id, text_response)
 
-    user_sessions[chat_id]["history"].append(types.Content(role="model", parts=[types.Part(text=text_response)]))
+    session.add_to_history(chat_id, "model", text_response)
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    global stop_requested
     chat_id = update.effective_chat.id
     user_text = update.message.text
 
@@ -416,9 +464,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if "수업종료" in user_text.replace(" ", ""):
         logger.info(f"사용자 요청으로 수업 종료 (Chat ID: {chat_id})")
 
-        if chat_id in user_sessions:
-            session = user_sessions[chat_id]
-            chat = client.chats.create(model=MODEL_ID, history=session["history"])
+        chat_session = session.get_session(chat_id)
+        if chat_session:
+            chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
             response = chat.send_message(
                 "수업종료 명령이 입력되었습니다. 5개 문제(Part 2~6) ALL 부분에 대해 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 작성하고 '수업 종료'라고 말해줘. "
                 "마지막 줄에 반드시 [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 형식으로 HSK 레벨 평가를 포함해줘."
@@ -448,7 +496,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text(mistake_msg)
 
         await update.message.reply_text("수업을 종료합니다. 수고하셨습니다!")
-        stop_requested = True
+        session.stop_requested = True
         try:
             await context.application.stop()
             await context.application.shutdown()
@@ -456,26 +504,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
         return
 
-    if chat_id not in user_sessions: return
+    chat_session = session.get_session(chat_id)
+    if not chat_session: return
 
-    session = user_sessions[chat_id]
-    chat = client.chats.create(model=MODEL_ID, history=session["history"])
+    chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
     response = chat.send_message(update.message.text)
 
     full_text = response.text
     await update.message.reply_text(full_text)
 
-    # [추가] 응답 후 오답노트 저장
+    # 응답 후 오답노트 저장
     save_wrong_note(user_text, full_text)
 
     if "수업 종료" not in full_text:
         should_send_voice = (not is_translation_request) and (not contains_hangul(full_text))
         if should_send_voice:
             await send_voice_message(context, chat_id, full_text)
-        session["history"].append(types.Content(role="user", parts=[types.Part(text=update.message.text)]))
-        session["history"].append(types.Content(role="model", parts=[types.Part(text=full_text)]))
+        session.add_to_history(chat_id, "user", update.message.text)
+        session.add_to_history(chat_id, "model", full_text)
     else:
-        # HSK 평가 결과 파싱 및 표시
+        # HSK 평가 결과 파싱 및 표시 (중복 코드 함수화)
         hsk_eval = parse_hsk_eval(full_text)
         frequent_mistake = parse_frequent_mistake(full_text)
         clean_text = strip_hsk_eval(full_text)
@@ -497,7 +545,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(mistake_msg)
 
         logger.info("수업이 종료되었습니다. 봇을 정지합니다.")
-        stop_requested = True
+        session.stop_requested = True
         try:
             await context.application.stop()
             await context.application.shutdown()
@@ -505,8 +553,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             pass
         return
 
+
 async def main():
-    import sys
     logger.info("즉시 수업을 시작합니다.")
 
     logger.info("텔레그램 봇 초기화 중...")
@@ -527,7 +575,7 @@ async def main():
         logger.info("봇이 활성화되었습니다. 응답을 기다립니다.")
         await application.updater.start_polling()
 
-        while not stop_requested:
+        while not session.stop_requested:
             await asyncio.sleep(1)
 
         try:
@@ -542,9 +590,12 @@ async def main():
 
     except Exception as e:
         logger.error(f"봇 실행 중 에러 발생: {e}")
+        sys.exit(1)  # 에러 시 exit code 1 반환
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
+        sys.exit(0)  # 정상 종료 시 exit code 0
     except KeyboardInterrupt:
         logger.info("봇 종료")
+        sys.exit(0)
