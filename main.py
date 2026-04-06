@@ -523,6 +523,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         session.add_to_history(chat_id, "user", update.message.text)
         session.add_to_history(chat_id, "model", full_text)
     else:
+        # 봇 응답에 "수업 종료"가 포함되면 자동으로 종료 (사용자 입력 대기 안 함)
+        logger.info("수업 종료 응답 감지 - 봇을 정지합니다.")
+        
         # HSK 평가 결과 파싱 및 표시 (중복 코드 함수화)
         hsk_eval = parse_hsk_eval(full_text)
         frequent_mistake = parse_frequent_mistake(full_text)
