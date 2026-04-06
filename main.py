@@ -180,6 +180,18 @@ def get_cached_hsk_problems() -> list:
     return _hsk_problems_cache
 
 
+async def shutdown_bot(context: ContextTypes.DEFAULT_TYPE):
+    """봇 종료 처리 (에러 발생 시에도 반드시 종료)"""
+    logger.info("수업이 종료되었습니다. 봇을 정지합니다.")
+    session.stop_requested = True
+    try:
+        await context.application.stop()
+        await context.application.shutdown()
+    except Exception as e:
+        logger.warning(f"봇 종료 중 예외: {e}")
+    sys.exit(0)
+
+
 def contains_hangul(text: str) -> bool:
     clean_text = (
         text.replace("부분", "")
@@ -681,13 +693,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_text(mistake_msg)
 
         await update.message.reply_text("수업을 종료합니다. 수고하셨습니다!")
-        session.stop_requested = True
-        try:
-            await context.application.stop()
-            await context.application.shutdown()
-        except Exception:
-            pass
-        return
+        # 봇 종료
+        await shutdown_bot(context)
 
     chat_session = session.get_session(chat_id)
     if not chat_session:
@@ -742,14 +749,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 mistake_msg = f"[자주 틀리는 표현] {frequent_mistake['expression']}"
             await update.message.reply_text(mistake_msg)
 
-        logger.info("수업이 종료되었습니다. 봇을 정지합니다.")
-        session.stop_requested = True
-        try:
-            await context.application.stop()
-            await context.application.shutdown()
-        except Exception:
-            pass
-        return
+        # 봇 종료 (try-except로 에러 발생 시에도 반드시 종료)
+        await shutdown_bot(context)
 
 
 async def main():
