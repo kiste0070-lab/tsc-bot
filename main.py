@@ -48,10 +48,10 @@ HSK_EVAL_PATTERN = re.compile(
     r"\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]"
 )
 MISTAKE_PATTERN = re.compile(r"\[자주 틀리는 표현\](.*?)(?:\n|$)")
-# 자주 틀리는 표현 + 문제 + 답변 파싱용 (예시 포함 버전)
+# 자주 틀리는 표현 + 문제 + 답변 파싱용 (예시 포함/미포함 버전)
 MISTAKE_WITH_ANSWER_PATTERN = re.compile(
     r"\[자주 틀리는 표현\]\s*(?:\(예시\)\s*)?(.*?)\*\*문제\*\*:\s*(.*?)\*\*답변\*\*:\s*(.*?)$",
-    re.DOTALL,
+    re.DOTALL | re.MULTILINE,
 )
 
 # 1. 환경 설정
@@ -453,12 +453,25 @@ def parse_frequent_mistake(text: str):
     # 문제/답변 포함 버전 우선 시도 (예시 포함)
     match_with_answer = MISTAKE_WITH_ANSWER_PATTERN.search(text)
     if match_with_answer:
-        return {
-            "expression": match_with_answer.group(2).strip(),
-            "problem": match_with_answer.group(3).strip(),
-            "answer": match_with_answer.group(4).strip(),
-            "has_details": True,
-        }
+        groups = match_with_answer.groups()
+        # group(4)가 없으면 (예시) 없는 버전
+        if len(groups) >= 3:
+            # (예시) 있는 경우: group(1)=(예시), group(2)=expression, group(3)=problem, group(4)=answer
+            # (예시) 없는 경우: group(1)=expression, group(2)=problem, group(3)=answer
+            if groups[0] and "(예시)" in groups[0]:
+                return {
+                    "expression": match_with_answer.group(2).strip(),
+                    "problem": match_with_answer.group(3).strip(),
+                    "answer": match_with_answer.group(4).strip(),
+                    "has_details": True,
+                }
+            else:
+                return {
+                    "expression": match_with_answer.group(1).strip(),
+                    "problem": match_with_answer.group(2).strip(),
+                    "answer": match_with_answer.group(3).strip(),
+                    "has_details": True,
+                }
     # 기존 버전 (하위 호환)
     match = MISTAKE_PATTERN.search(text)
     if match:
