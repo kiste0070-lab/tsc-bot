@@ -294,12 +294,35 @@ def parse_hsk_eval(text: str):
         }
     return None
 
+def parse_frequent_mistake(text: str):
+    """[자주 틀리는 표현] 내용 추출"""
+    match = re.search(r'\[자주 틀리는 표현\](.*?)(?:\n|$)', text)
+    if match:
+        return match.group(1).strip()
+    return None
+
 def strip_hsk_eval(text: str):
     """응답에서 HSK_EVAL 태그를 제거"""
     return re.sub(r'\[HSK_EVAL\].*?\[/HSK_EVAL\]', '', text).strip()
 
+def strip_frequent_mistake(text: str):
+    """응답에서 자주 틀리는 표현 태그를 제거"""
+    return re.sub(r'\[자주 틀리는 표현\].*?(?:\n|$)', '', text, flags=re.DOTALL).strip()
+
 # 3. 시스템 프롬프트
-def get_system_prompt(problems_text):
+def get_system_prompt(problems_text, today_wrong_notes=""):
+    wrong_notes_section = ""
+    if today_wrong_notes:
+        wrong_notes_section = f"""
+
+[오늘의 오답 참고]
+오늘의 수업에서 사용자가 다음과 같이 답변했고, 첨삭을 받았습니다:
+{today_wrong_notes}
+
+위 오답 내용을 참조하여 사용자가 자주 틀리는 표현이나 문법 패턴을 파악하고, 수업 종료 시 [자주 틀리는 표현] 형태로 한 줄 정도 제공해주세요.
+예: [자주 틀리는 표현] 和(hé)와 함께 쓰는 표현을 자주 잊으시네요.
+"""
+
     return f"""
 너는 TSC 전문 중국어 선생님이야. 오늘 하루는 아래 5개 문제(Part 2~6)로 수업을 진행해.
 
@@ -320,7 +343,7 @@ def get_system_prompt(problems_text):
 5. 사용자가 답변을 한 경우:
    - 답변한 부분에 대해서만 꼼꼼하게 한국어로 첨삭/교정해줘 (병음/예시 포함, 설명은 한국어).
    - 답변하지 않은 부분에 대해서는 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 작성해줘.
-6. 사용자가 '수업종료'라고 보내면, 5개 문제 ALL 부분에 대한 예시 답변(HSK 1~4급, 2문장)을 작성하고 수업을 종료해.
+6. 사용자가 '수업종료'라고 보내면, 5개 문제 ALL 부분에 대해 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 작성하고 수업을 종료해.
 7. 문제설명/문제해석/답변 첨삭 요청에는 '한국어'로만 답해줘. (불필요한 중국어 재질문 금지)
 8. 첨삭과 예시 답변이 끝나면 "수업 종료"라고 말해.
 
@@ -334,6 +357,7 @@ def get_system_prompt(problems_text):
 - 수업 종료 시, 마지막 줄에 반드시 다음 형식으로 HSK 평가 결과를 포함해줘:
   [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL]
 - 예시: [HSK_EVAL]종합:3.2|단어:3.5|문법:3.0[/HSK_EVAL]
+{wrong_notes_section}
 """
 
 async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
@@ -361,7 +385,9 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         if part in problems:
             problems_text += f"{part_names[part]} : {problems[part]}\n"
 
-    prompt = get_system_prompt(problems_text)
+    # 오늘의 오답노트 가져오기
+    today_wrong_notes = get_today_wrong_notes()
+    prompt = get_system_prompt(problems_text, today_wrong_notes)
 
     user_sessions[chat_id] = {
         "history": [types.Content(role="user", parts=[types.Part(text=prompt)])]
@@ -402,7 +428,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # HSK 평가 결과 파싱 및 표시
             hsk_eval = parse_hsk_eval(full_text)
+            frequent_mistake = parse_frequent_mistake(full_text)
             clean_text = strip_hsk_eval(full_text)
+            clean_text = strip_frequent_mistake(clean_text)
 
             await update.message.reply_text(clean_text)
 
@@ -414,6 +442,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     f"📝 문법: HSK {hsk_eval['문법']}등급"
                 )
                 await update.message.reply_text(hsk_msg)
+
+            if frequent_mistake:
+                mistake_msg = f"[자주 틀리는 표현] {frequent_mistake}"
+                await update.message.reply_text(mistake_msg)
 
         await update.message.reply_text("수업을 종료합니다. 수고하셨습니다!")
         stop_requested = True
@@ -445,7 +477,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         # HSK 평가 결과 파싱 및 표시
         hsk_eval = parse_hsk_eval(full_text)
+        frequent_mistake = parse_frequent_mistake(full_text)
         clean_text = strip_hsk_eval(full_text)
+        clean_text = strip_frequent_mistake(clean_text)
 
         await update.message.reply_text(clean_text)
 
@@ -457,6 +491,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f"📝 문법: HSK {hsk_eval['문법']}등급"
             )
             await update.message.reply_text(hsk_msg)
+
+        if frequent_mistake:
+            mistake_msg = f"[자주 틀리는 표현] {frequent_mistake}"
+            await update.message.reply_text(mistake_msg)
 
         logger.info("수업이 종료되었습니다. 봇을 정지합니다.")
         stop_requested = True
