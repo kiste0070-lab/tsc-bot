@@ -6,6 +6,7 @@ import calendar
 import sys
 import json
 import random
+import time
 from datetime import datetime
 from dotenv import load_dotenv
 from google import genai
@@ -141,6 +142,34 @@ def get_random_hsk_problem(problems: list) -> dict | None:
 
 # 캐시된 문제列表
 _hsk_problems_cache = None
+
+
+# ============================================================
+# Gemini API Retry 로직 (503 에러 대응)
+# ============================================================
+def send_chat_message_with_retry(
+    chat, message: str, max_retries: int = 3, retry_delay: int = 120
+):
+    """Gemini API 호출 시 503 에러 발생 시 재시도"""
+    for attempt in range(max_retries):
+        try:
+            response = chat.send_message(message)
+            return response
+        except Exception as e:
+            error_msg = str(e)
+            if "503" in error_msg or "UNAVAILABLE" in error_msg:
+                logger.warning(
+                    f"Gemini API 503 에러 발생 - 시도 {attempt + 1}/{max_retries}"
+                )
+                if attempt < max_retries - 1:
+                    logger.info(f"{retry_delay}초 후 재시도...")
+                    time.sleep(retry_delay)
+                else:
+                    logger.error(f"최대 재시도 횟수 초과: {error_msg}")
+                    raise
+            else:
+                logger.error(f"Gemini API غير 예상 에러: {error_msg}")
+                raise
 
 
 def get_cached_hsk_problems() -> list:
@@ -574,8 +603,9 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     chat = client.chats.create(
         model=MODEL_ID, history=session.get_session(chat_id)["history"]
     )
-    response = chat.send_message(
-        "스몰토크나 인사말 없이, 위의 5개 문제를 지정된 형식(2부분 : 문제, 3부분 : 문제 ...)에 맞게 한 번에 제공해줘."
+    response = send_chat_message_with_retry(
+        chat,
+        "스몰토크나 인사말 없이, 위의 5개 문제를 지정된 형식(2부분 : 문제, 3부분 : 문제 ...)에 맞게 한 번에 제공해줘.",
     )
 
     text_response = response.text
@@ -599,9 +629,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_session = session.get_session(chat_id)
         if chat_session:
             chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
-            response = chat.send_message(
+            response = send_chat_message_with_retry(
+                chat,
                 "수업종료 명령이 입력되었습니다. 5개 문제(Part 2~6) ALL 부분에 대해 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 작성하고 '수업 종료'라고 말해줘. "
-                "마지막 줄에 반드시 [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 형식으로 HSK 레벨 평가를 포함해줘."
+                "마지막 줄에 반드시 [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 형식으로 HSK 레벨 평가를 포함해줘.",
             )
             full_text = response.text
             save_wrong_note(user_text, full_text)
@@ -650,7 +681,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
-    response = chat.send_message(update.message.text)
+    response = send_chat_message_with_retry(chat, update.message.text)
 
     full_text = response.text
     await update.message.reply_text(full_text)
