@@ -64,14 +64,14 @@ try:
 except (ValueError, TypeError):
     CHAT_ID = 0
 
+# Model configuration (centralized via environment variables)
+# Set in .env: GEMINI_MODEL_PRIMARY, GEMINI_MODEL_SECONDARY
+# Default values if not set (fallback to tested working models)
+GEMINI_MODEL_1 = os.getenv("GEMINI_MODEL_PRIMARY", "gemma-4-31b-it")
+GEMINI_MODEL_2 = os.getenv("GEMINI_MODEL_SECONDARY", "gemini-3.1-flash-lite-preview")
+
 # New SDK Client
 client = genai.Client(api_key=GEMINI_KEY)
-
-# Model Priority (via Gemini API):
-# 1. gemma-4-31b-it - Gemini API (무료, 추천)
-# 2. gemini-3.1-flash-lite-preview - Gemini API (cheap)
-GEMINI_MODEL_1 = "gemma-4-31b-it"
-GEMINI_MODEL_2 = "gemini-3.1-flash-lite-preview"
 MODEL_ID = GEMINI_MODEL_1  # 기본: Gemma 4 31B (무료)
 
 
