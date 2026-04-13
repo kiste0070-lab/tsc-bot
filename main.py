@@ -66,7 +66,13 @@ except (ValueError, TypeError):
 
 # New SDK Client
 client = genai.Client(api_key=GEMINI_KEY)
-MODEL_ID = "gemini-3.1-flash-lite-preview"
+
+# Model Priority (via Gemini API):
+# 1. gemma-4-31b-it - Gemini API (무료, 추천)
+# 2. gemini-3.1-flash-lite-preview - Gemini API (cheap)
+GEMINI_MODEL_1 = "gemma-4-31b-it"
+GEMINI_MODEL_2 = "gemini-3.1-flash-lite-preview"
+MODEL_ID = GEMINI_MODEL_1  # 기본: Gemma 4 31B (무료)
 
 
 # ============================================================
