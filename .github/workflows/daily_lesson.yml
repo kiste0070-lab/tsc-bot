@@ -33,6 +33,8 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          GEMINI_MODEL_PRIMARY: ${{ secrets.GEMINI_MODEL_PRIMARY || 'gemma-4-31b-it' }}
+          GEMINI_MODEL_SECONDARY: ${{ secrets.GEMINI_MODEL_SECONDARY || 'gemini-3.1-flash-lite-preview' }}
         run: python main.py
 
       - name: Commit and push wrong_notes
