@@ -156,25 +156,27 @@ _hsk_problems_cache = None
 def send_chat_message_with_retry(
     chat, message: str, max_retries: int = 3, retry_delay: int = 120
 ):
-    """Gemini API 호출 시 503 에러 발생 시 재시도"""
+    """Gemini API 호출 시 500/503 에러 발생 시 재시도"""
     for attempt in range(max_retries):
         try:
             response = chat.send_message(message)
             return response
         except Exception as e:
             error_msg = str(e)
-            if "503" in error_msg or "UNAVAILABLE" in error_msg:
+            if "503" in error_msg or "UNAVAILABLE" in error_msg or "500" in error_msg or "INTERNAL" in error_msg:
+                # 500 INTERNAL 에러일 경우 60초(1분), 503 오류일 경우 기존 120초
+                current_delay = 60 if ("500" in error_msg or "INTERNAL" in error_msg) else retry_delay
                 logger.warning(
-                    f"Gemini API 503 에러 발생 - 시도 {attempt + 1}/{max_retries}"
+                    f"Gemini API 일시적 에러 발생 - 시도 {attempt + 1}/{max_retries} ({error_msg})"
                 )
                 if attempt < max_retries - 1:
-                    logger.info(f"{retry_delay}초 후 재시도...")
-                    time.sleep(retry_delay)
+                    logger.info(f"{current_delay}초 후 재시도...")
+                    time.sleep(current_delay)
                 else:
                     logger.error(f"최대 재시도 횟수 초과: {error_msg}")
                     raise
             else:
-                logger.error(f"Gemini API غير 예상 에러: {error_msg}")
+                logger.error(f"Gemini API 예상치 못한 에러: {error_msg}")
                 raise
 
 
