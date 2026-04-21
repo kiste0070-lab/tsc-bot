@@ -506,8 +506,8 @@ def strip_hsk_eval(text: str):
 
 def strip_frequent_mistake(text: str):
     """응답에서 자주 틀리는 표현 태그를 제거 (문제/답변 포함 버전)"""
-    text = MISTAKE_WITH_ANSWER_PATTERN.sub("", text, flags=re.DOTALL)
-    text = MISTAKE_PATTERN.sub("", text, flags=re.DOTALL)
+    text = MISTAKE_WITH_ANSWER_PATTERN.sub("", text)
+    text = MISTAKE_PATTERN.sub("", text)
     return text.strip()
 
 
