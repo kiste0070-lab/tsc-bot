@@ -384,17 +384,18 @@ def get_today_problems(year, month, day):
         with open(plan_filepath, "r", encoding="utf-8") as f:
             content = f.read()
 
-        # Find today's section
-        date_str = f"{year}-{month:02d}-{day:02d}"
-        date_header = f"### {date_str}"
-
-        # Find the start of today's section
-        start_idx = content.find(date_header)
-        if start_idx == -1:
+        # Find today's section with flexible regex matching
+        import re
+        date_pattern = re.compile(rf"###\s*{year}[-\s년]*0?{month}[-\s월]*0?{day}[-\s일]*")
+        match = date_pattern.search(content)
+        
+        if not match:
             return None
 
+        start_idx = match.start()
+
         # Find the end (next ### header or end of file)
-        next_header_idx = content.find("\n### ", start_idx + len(date_header))
+        next_header_idx = content.find("\n### ", start_idx + 1)
         if next_header_idx == -1:
             section = content[start_idx:]
         else:

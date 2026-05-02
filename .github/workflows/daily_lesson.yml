@@ -37,12 +37,12 @@ jobs:
           GEMINI_MODEL_SECONDARY: ${{ secrets.GEMINI_MODEL_SECONDARY || 'gemini-3.1-flash-lite-preview' }}
         run: python main.py
 
-      - name: Commit and push wrong_notes
+      - name: Commit and push wrong_notes and Monthly_Plan
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add wrong_notes/
+          git add wrong_notes/ Monthly_Plan/
           # 변경사항이 없으면 커밋하지 않고 정상 종료
           git diff --cached --quiet && echo "변경사항 없음, 커밋 생략" || \
-          git commit -m "📝 오답노트 업데이트: $(date '+%Y-%m-%d')"
+          git commit -m "📝 오답노트 및 월간 계획 업데이트: $(date '+%Y-%m-%d')"
           git push
