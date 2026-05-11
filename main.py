@@ -47,7 +47,7 @@ PART_PATTERN = re.compile(r"^(\d)부분\s*:\s*(.+)$")
 HSK_EVAL_PATTERN = re.compile(
     r"\[HSK_EVAL\]종합:([\d.]+)\|단어:([\d.]+)\|문법:([\d.]+)\[/HSK_EVAL\]"
 )
-MISTAKE_PATTERN = re.compile(r"\[자주 틀리는 표현\](.*?)(?:\n|$)")
+MISTAKE_PATTERN = re.compile(r"\[자주 틀리는 표현\](.*)", re.DOTALL)
 # 자주 틀리는 표현 + 문제 + 답변 파싱용 (예시 포함/미포함 버전)
 MISTAKE_WITH_ANSWER_PATTERN = re.compile(
     r"\[자주 틀리는 표현\]\s*(?:\(예시\)\s*)?(.*?)\*\*문제\*\*:\s*(.*?)\*\*답변\*\*:\s*(.*?)$",
@@ -489,8 +489,12 @@ def get_system_prompt(problems_text, today_wrong_notes=""):
 
 {today_wrong_notes}
 
-위 오답 내용을 참조하여 사용자가 자주 틀리는 표현이나 문법 패턴을 파악하고, 수업 종료 시 다음 형식으로 제공해주세요:
-[자주 틀리는 표현] (예시) 설명문
+위 오답 내용을 참조하여, 오늘 답변 중 오답노트 내용과 동일하게(반복적으로) 틀린 패턴이 있다면, 어떤 부분이 틀렸고 어떻게 표현해야 하는지 분석해서 수업 종료 시 다음 형식으로 제공해주세요:
+[자주 틀리는 표현]
+- 틀린 표현: (설명 및 한자)
+(pinyin)
+- 올바른 표현: (설명 및 한자)
+(pinyin)
 """
 
     return f"""
@@ -517,9 +521,10 @@ def get_system_prompt(problems_text, today_wrong_notes=""):
      (문제 pinyin)
      답변
      (답변 pinyin)
-6. 사용자가 '수업종료'라고 보내면, 5개 문제 ALL 부분에 대해 5번과 동일한 형식(문제, 문제 pinyin, 답변, 답변 pinyin)으로 예시 답변을 작성하고 수업을 종료해.
+6. 사용자가 '수업종료'라고 보내면, 5개 문제 ALL 부분에 대해 5번과 동일한 형식(문제, 문제 pinyin, 답변, 답변 pinyin)으로 예시 답변을 작성하고 수업 종료 문구를 출력해.
 7. 문제설명/문제해석/답변 첨삭 요청에는 '한국어'로만 답해줘. (불필요한 중국어 재질문 금지)
 8. 첨삭과 예시 답변이 끝나면 "수업 종료"라고 말해.
+9. 출력하는 모든 중국어 한자의 바로 아래 줄에는 반드시 괄호 사이에 pinyin을 써줘. (예: 텍스트\n(pinyin))
 
 [HSK 레벨 평가 규칙]
 - 사용자의 중국어 답변을 분석하여 HSK 레벨을 평가해줘.
@@ -615,8 +620,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # HSK 평가 결과 파싱 및 표시
             hsk_eval = parse_hsk_eval(full_text)
-            frequent_mistake = parse_frequent_mistake(full_text)
             clean_text = strip_hsk_eval(full_text)
+            frequent_mistake = parse_frequent_mistake(clean_text)
             clean_text = strip_frequent_mistake(clean_text)
 
             await update.message.reply_text(clean_text)
@@ -674,8 +679,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # HSK 평가 결과 파싱 및 표시 (중복 코드 함수화)
         hsk_eval = parse_hsk_eval(full_text)
-        frequent_mistake = parse_frequent_mistake(full_text)
         clean_text = strip_hsk_eval(full_text)
+        frequent_mistake = parse_frequent_mistake(clean_text)
         clean_text = strip_frequent_mistake(clean_text)
 
         await update.message.reply_text(clean_text)
