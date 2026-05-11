@@ -103,51 +103,7 @@ MONTHLY_PLAN_DIR = os.path.join(BASE_DIR, "Monthly_Plan")
 HSK_BANK_DIR = os.path.join(BASE_DIR, "hsk_bank")
 
 
-# ============================================================
-# HSK 문제 Bank 로더
-# ============================================================
-def load_hsk_problems() -> list:
-    """HSK JSON 파일에서 문제를 무작위로 Load"""
-    problems = []
-    if not os.path.exists(HSK_BANK_DIR):
-        return problems
-
-    for filename in os.listdir(HSK_BANK_DIR):
-        if not filename.endswith(".json"):
-            continue
-        filepath = os.path.join(HSK_BANK_DIR, filename)
-        try:
-            with open(filepath, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if "questions" in data:
-                    for q in data["questions"]:
-                        # 문제가 있는 경우만 추가
-                        text = q.get("text", "").strip()
-                        options = q.get("options", [])
-                        correct_idx = q.get("correct_answer_index")
-                        if text and options and correct_idx is not None:
-                            problems.append(
-                                {
-                                    "question": text,
-                                    "options": options,
-                                    "answer": options[correct_idx]
-                                    if correct_idx < len(options)
-                                    else "",
-                                    "type": q.get("type", "unknown"),
-                                }
-                            )
-        except Exception as e:
-            logger.warning(f"HSK 뱅크 로드 오류 {filename}: {e}")
-    return problems
-
-
-def get_random_hsk_problem(problems: list) -> dict | None:
-    """무작위로 문제 1개 선택"""
-    return random.choice(problems) if problems else None
-
-
-# 캐시된 문제列表
-_hsk_problems_cache = None
+# HSK 문제 Bank 로더 제거 (요청에 따라 삭제)
 
 
 # ============================================================
@@ -180,13 +136,7 @@ def send_chat_message_with_retry(
                 raise
 
 
-def get_cached_hsk_problems() -> list:
-    """캐시된 HSK 문제 반환"""
-    global _hsk_problems_cache
-    if _hsk_problems_cache is None:
-        _hsk_problems_cache = load_hsk_problems()
-    return _hsk_problems_cache
-
+# HSK 캐시 관련 코드 삭제
 
 async def shutdown_bot(context: ContextTypes.DEFAULT_TYPE):
     """봇 종료 처리 (에러 발생 시에도 반드시 종료)"""
@@ -529,9 +479,9 @@ def get_today_wrong_notes():
 
 
 # 3. 시스템 프롬프트
-def get_system_prompt(problems_text, today_wrong_notes="", hsk_problem=None):
+def get_system_prompt(problems_text, today_wrong_notes=""):
     wrong_notes_section = ""
-    if today_wrong_notes and hsk_problem:
+    if today_wrong_notes:
         wrong_notes_section = f"""
 
 [오늘의 오답 참고]
@@ -541,18 +491,6 @@ def get_system_prompt(problems_text, today_wrong_notes="", hsk_problem=None):
 
 위 오답 내용을 참조하여 사용자가 자주 틀리는 표현이나 문법 패턴을 파악하고, 수업 종료 시 다음 형식으로 제공해주세요:
 [자주 틀리는 표현] (예시) 설명문
-**문제**: (아래 HSK 문제를 그대로 사용)
-**답변**: (아래 HSK 문제의 정답)
-
-[HSK 연습 문제]
-문제: {hsk_problem["question"]}
-선택지: {", ".join(hsk_problem["options"])}
-정답: {hsk_problem["answer"]}
-
-예시:
-[자주 틀리는 표현] 和(hé)와 함께 쓸 표현을 자주 잊으시네요.
-**문제**: 虽然现在离（　）还有段时间，但是不少人已经开始准备过年的东西了。
-**답변**: C. 春节
 """
 
     return f"""
@@ -629,10 +567,9 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         if part in problems:
             problems_text += f"{part_names[part]} : {problems[part]}\n"
 
-    # 오늘의 오답노트 가져오기 + HSK 문제 bank에서 무작위 문제 선택
+    # 오늘의 오답노트 가져오기
     today_wrong_notes = get_today_wrong_notes()
-    hsk_problem = get_random_hsk_problem(get_cached_hsk_problems())
-    prompt = get_system_prompt(problems_text, today_wrong_notes, hsk_problem)
+    prompt = get_system_prompt(problems_text, today_wrong_notes)
 
     session.add_session(
         chat_id, [types.Content(role="user", parts=[types.Part(text=prompt)])]
@@ -718,12 +655,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     response = send_chat_message_with_retry(chat, update.message.text)
 
     full_text = response.text
-    await update.message.reply_text(full_text)
 
     # 응답 후 오답노트 저장
     save_wrong_note(user_text, full_text)
 
     if "수업 종료" not in full_text:
+        await update.message.reply_text(full_text)
         should_send_voice = (not is_translation_request) and (
             not contains_hangul(full_text)
         )
