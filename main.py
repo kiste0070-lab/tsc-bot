@@ -72,7 +72,7 @@ GEMINI_MODEL_2 = os.getenv("GEMINI_MODEL_SECONDARY", "gemini-3.1-flash-lite-prev
 
 # New SDK Client
 client = genai.Client(api_key=GEMINI_KEY)
-MODEL_ID = GEMINI_MODEL_1  # 기본: Gemma 4 31B (무료)
+MODELS = [GEMINI_MODEL_1, GEMINI_MODEL_2]  # 폴백 순서 정의
 
 
 # ============================================================
@@ -109,31 +109,42 @@ HSK_BANK_DIR = os.path.join(BASE_DIR, "hsk_bank")
 # ============================================================
 # Gemini API Retry 로직 (503 에러 대응)
 # ============================================================
-def send_chat_message_with_retry(
-    chat, message: str, max_retries: int = 3, retry_delay: int = 120
+def send_chat_message_with_fallback(
+    chat_id: int, message: str, max_retries: int = 3, retry_delay: int = 120
 ):
-    """Gemini API 호출 시 500/503 에러 발생 시 재시도"""
-    for attempt in range(max_retries):
-        try:
-            response = chat.send_message(message)
-            return response
-        except Exception as e:
-            error_msg = str(e)
-            if "503" in error_msg or "UNAVAILABLE" in error_msg or "500" in error_msg or "INTERNAL" in error_msg:
-                # 500 INTERNAL 에러일 경우 60초(1분), 503 오류일 경우 기존 120초
-                current_delay = 60 if ("500" in error_msg or "INTERNAL" in error_msg) else retry_delay
-                logger.warning(
-                    f"Gemini API 일시적 에러 발생 - 시도 {attempt + 1}/{max_retries} ({error_msg})"
-                )
-                if attempt < max_retries - 1:
-                    logger.info(f"{current_delay}초 후 재시도...")
-                    time.sleep(current_delay)
+    """Gemini API 호출 시 500/503 에러 발생 시 재시도 및 모델 폴백 적용"""
+    chat_session = session.get_session(chat_id)
+    history = chat_session["history"] if chat_session else []
+    
+    last_error = None
+    for model_id in MODELS:
+        logger.info(f"사용 모델: {model_id}")
+        chat = client.chats.create(model=model_id, history=history)
+        
+        for attempt in range(max_retries):
+            try:
+                response = chat.send_message(message)
+                return response
+            except Exception as e:
+                last_error = e
+                error_msg = str(e)
+                if "503" in error_msg or "UNAVAILABLE" in error_msg or "500" in error_msg or "INTERNAL" in error_msg:
+                    current_delay = 60 if ("500" in error_msg or "INTERNAL" in error_msg) else retry_delay
+                    logger.warning(
+                        f"[{model_id}] API 일시적 에러 발생 - 시도 {attempt + 1}/{max_retries} ({error_msg})"
+                    )
+                    if attempt < max_retries - 1:
+                        logger.info(f"{current_delay}초 후 재시도...")
+                        time.sleep(current_delay)
+                    else:
+                        logger.error(f"[{model_id}] 최대 재시도 횟수 초과. 다음 모델로 폴백합니다.")
+                        break  # 현재 모델 실패, 다음 모델로 넘어감
                 else:
-                    logger.error(f"최대 재시도 횟수 초과: {error_msg}")
-                    raise
-            else:
-                logger.error(f"Gemini API 예상치 못한 에러: {error_msg}")
-                raise
+                    logger.error(f"[{model_id}] 예상치 못한 에러: {error_msg}. 다음 모델로 폴백합니다.")
+                    break  # 치명적 에러, 다음 모델로 넘어감
+                    
+    logger.error("모든 모델에서 응답 생성에 실패했습니다.")
+    raise last_error
 
 
 # HSK 캐시 관련 코드 삭제
@@ -276,50 +287,58 @@ def generate_monthly_plan(year, month):
 """
 
     max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            logger.info(
-                f"월간 계획 생성 시도 {attempt + 1}/{max_retries}: {year}년 {month}월"
-            )
-            response = client.models.generate_content(model=MODEL_ID, contents=prompt)
-            plan_content = response.text.strip()
-
-            # Parse and check for duplicates (정규식 캐시 사용)
-            new_problems = []
-            for line in plan_content.split("\n"):
-                match = PART_PATTERN.match(line.strip())
-                if match:
-                    new_problems.append(match.group(2).strip())
-
-            duplicates = check_duplicate(new_problems, existing_problems)
-            if duplicates:
-                logger.warning(
-                    f"중복 문제 발견 ({len(duplicates)}개): {duplicates[:3]}... 재생성 시도"
+    for model_id in MODELS:
+        for attempt in range(max_retries):
+            try:
+                logger.info(
+                    f"[{model_id}] 월간 계획 생성 시도 {attempt + 1}/{max_retries}: {year}년 {month}월"
                 )
-                prompt += (
-                    f"\n\n[이전 시도에서 중복된 문제들 - 이번에는 절대 사용하지 마세요]\n"
-                    + "\n".join(duplicates)
+                response = client.models.generate_content(model=model_id, contents=prompt)
+                plan_content = response.text.strip()
+
+                # Parse and check for duplicates (정규식 캐시 사용)
+                new_problems = []
+                for line in plan_content.split("\n"):
+                    match = PART_PATTERN.match(line.strip())
+                    if match:
+                        new_problems.append(match.group(2).strip())
+
+                duplicates = check_duplicate(new_problems, existing_problems)
+                if duplicates:
+                    logger.warning(
+                        f"[{model_id}] 중복 문제 발견 ({len(duplicates)}개): {duplicates[:3]}... 재생성 시도"
+                    )
+                    prompt += (
+                        f"\n\n[이전 시도에서 중복된 문제들 - 이번에는 절대 사용하지 마세요]\n"
+                        + "\n".join(duplicates)
+                    )
+                    continue
+
+                # Write the plan file
+                with open(plan_filepath, "w", encoding="utf-8") as f:
+                    f.write(f"# {year}년 {month}월 월간 문제 계획\n\n")
+                    f.write(plan_content)
+                    f.write("\n")
+
+                logger.info(
+                    f"월간 계획 생성 완료: {plan_filename} ({len(new_problems)}개 문제) - 사용 모델: {model_id}"
                 )
-                continue
+                return True
 
-            # Write the plan file
-            with open(plan_filepath, "w", encoding="utf-8") as f:
-                f.write(f"# {year}년 {month}월 월간 문제 계획\n\n")
-                f.write(plan_content)
-                f.write("\n")
+            except Exception as e:
+                error_msg = str(e)
+                logger.error(f"[{model_id}] 월간 계획 생성 오류: {error_msg}")
+                if "503" in error_msg or "UNAVAILABLE" in error_msg or "500" in error_msg or "INTERNAL" in error_msg:
+                    current_delay = 60 if ("500" in error_msg or "INTERNAL" in error_msg) else 120
+                    if attempt < max_retries - 1:
+                        logger.info(f"{current_delay}초 후 재시도...")
+                        time.sleep(current_delay)
+                    else:
+                        break # Go to next model
+                else:
+                    break # Critical error, go to next model
 
-            logger.info(
-                f"월간 계획 생성 완료: {plan_filename} ({len(new_problems)}개 문제)"
-            )
-            return True
-
-        except Exception as e:
-            logger.error(f"월간 계획 생성 오류: {e}")
-            if attempt == max_retries - 1:
-                return False
-            continue
-
-    logger.error(f"월간 계획 생성 실패: {year}년 {month}월 (최대 재시도 초과)")
+    logger.error(f"월간 계획 생성 실패: {year}년 {month}월 (모든 모델 시도 실패)")
     return False
 
 
@@ -580,11 +599,8 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         chat_id, [types.Content(role="user", parts=[types.Part(text=prompt)])]
     )
 
-    chat = client.chats.create(
-        model=MODEL_ID, history=session.get_session(chat_id)["history"]
-    )
-    response = send_chat_message_with_retry(
-        chat,
+    response = send_chat_message_with_fallback(
+        chat_id,
         "스몰토크나 인사말 없이, 위의 5개 문제를 지정된 형식(2부분 : 문제, 3부분 : 문제 ...)에 맞게 한 번에 제공해줘.",
     )
 
@@ -608,9 +624,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         chat_session = session.get_session(chat_id)
         if chat_session:
-            chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
-            response = send_chat_message_with_retry(
-                chat,
+            response = send_chat_message_with_fallback(
+                chat_id,
                 "수업종료 명령이 입력되었습니다. 5개 문제(Part 2~6) ALL 부분에 대해 HSK 1~4급 단어를 사용한 2문장 정도의 예시 답변을 아래 형식으로 작성하고 '수업 종료'라고 말해줘.\n"
                 "문제\n(문제 pinyin)\n답변\n(답변 pinyin)\n"
                 "마지막 줄에 반드시 [HSK_EVAL]종합:X.X|단어:X.X|문법:X.X[/HSK_EVAL] 형식으로 HSK 레벨 평가를 포함해줘.",
@@ -656,8 +671,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not chat_session:
         return
 
-    chat = client.chats.create(model=MODEL_ID, history=chat_session["history"])
-    response = send_chat_message_with_retry(chat, update.message.text)
+    response = send_chat_message_with_fallback(chat_id, update.message.text)
 
     full_text = response.text
 
