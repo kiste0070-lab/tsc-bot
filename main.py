@@ -117,7 +117,7 @@ def send_chat_message_with_fallback(
     history = chat_session["history"] if chat_session else []
     
     last_error = None
-    for model_id in MODELS:
+    for i, model_id in enumerate(MODELS):
         logger.info(f"사용 모델: {model_id}")
         chat = client.chats.create(model=model_id, history=history)
         
@@ -138,9 +138,15 @@ def send_chat_message_with_fallback(
                         time.sleep(current_delay)
                     else:
                         logger.error(f"[{model_id}] 최대 재시도 횟수 초과. 다음 모델로 폴백합니다.")
+                        if i < len(MODELS) - 1:
+                            logger.info("모델 전환 전 API 트래픽 분산을 위해 5분(300초) 대기합니다...")
+                            time.sleep(300)
                         break  # 현재 모델 실패, 다음 모델로 넘어감
                 else:
                     logger.error(f"[{model_id}] 예상치 못한 에러: {error_msg}. 다음 모델로 폴백합니다.")
+                    if i < len(MODELS) - 1:
+                        logger.info("모델 전환 전 API 트래픽 분산을 위해 5분(300초) 대기합니다...")
+                        time.sleep(300)
                     break  # 치명적 에러, 다음 모델로 넘어감
                     
     logger.error("모든 모델에서 응답 생성에 실패했습니다.")
@@ -287,7 +293,7 @@ def generate_monthly_plan(year, month):
 """
 
     max_retries = 3
-    for model_id in MODELS:
+    for i, model_id in enumerate(MODELS):
         for attempt in range(max_retries):
             try:
                 logger.info(
@@ -334,8 +340,14 @@ def generate_monthly_plan(year, month):
                         logger.info(f"{current_delay}초 후 재시도...")
                         time.sleep(current_delay)
                     else:
+                        if i < len(MODELS) - 1:
+                            logger.info("모델 전환 전 API 트래픽 분산을 위해 5분(300초) 대기합니다...")
+                            time.sleep(300)
                         break # Go to next model
                 else:
+                    if i < len(MODELS) - 1:
+                        logger.info("모델 전환 전 API 트래픽 분산을 위해 5분(300초) 대기합니다...")
+                        time.sleep(300)
                     break # Critical error, go to next model
 
     logger.error(f"월간 계획 생성 실패: {year}년 {month}월 (모든 모델 시도 실패)")
