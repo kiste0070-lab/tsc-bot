@@ -276,3 +276,47 @@
 [HSK_EVAL]종합:2.5|단어:2.6|문법:2.4[/HSK_EVAL]
 
 ---
+
+## 2026-05-13
+
+**🗣️ 나의 답변:**
+2。我今天喝咖啡了。
+
+**💡 첨삭/교정:**
+**[답변 첨삭 및 교정]**
+
+**2부분 : 我今天喝咖啡了。**
+- **첨삭:** 문법적으로 매우 정확하고 완벽한 문장입니다. 하지만 TSC 시험에서는 단순히 질문에 답하는 것보다, 내용을 조금 더 덧붙여 구체적으로 말하는 것이 높은 등급을 받는 비결입니다. 예를 들어, 어디서 마셨는지, 맛은 어땠는지, 왜 마셨는지 등을 추가해 보세요.
+- **교정 예시:** 我今天喝了一杯咖啡，味道很好。
+(Wǒ jīntiān hēle yì bēi kāfēi, wèidào hěn hǎo.)
+- **해석:** 저는 오늘 커피 한 잔을 마셨는데, 맛이 아주 좋았습니다.
+
+---
+
+**[미답변 부분 예시 답변]**
+
+**3부분 : 请介绍一下你最崇拜的一个人。**
+(Qǐng jièshào yíxià nǐ zuì chóngbài de yíge rén.)
+**답변 : 我最崇拜的人是我爸爸。因为他工作很努力。**
+(Wǒ zuì chóngbài de rén shì wǒ bàba. Yīnwèi tā gōngzuò hěn nǔlì.)
+
+**4부분 : 你想在超市寻找某种商品，但找不到，你会怎么问工作人员？**
+(Nǐ xiǎng zài chāoshì xúnzhǎo mǒu zhǒng shāngpǐn, dàn zhǎo bú dào, nǐ huì zěnme wèn gōngzuò rényuán?)
+**답변 : 您好，请问面包在哪个地方？**
+(Nín hǎo, qǐngwèn miànbāo zài nǎge dìfang?)
+
+**5부분 : 你认为学习外语最好的方法是什么？**
+(Nǐ rènwéi xuéxí wàiyǔ zuì hǎo de fāngfǎ shì shénme?)
+**답변 : 我认为最好的方法是多看电影和多听音乐。**
+(Wǒ rènwéi zuì hǎo de fāngfǎ shì duō kàn diànyǐng hé duō tīng yīnyuè.)
+
+**6부분 : 你觉得在处理人际关系时，诚实和礼貌哪个更重要？**
+(Nǐ juéde zài chǔlǐ rénjì guānxì shí, chéngshí hé lǐmào nǎge gèng zhòngyào?)
+**답변 : 我觉得礼貌更重要。因为礼貌可以给别人好印象。**
+(Wǒ juéde lǐmào gèng zhòngyào. Yīnwèi lǐmào kěyǐ gěi biérén hǎo yìnxiàng.)
+
+수업 종료
+
+[HSK_EVAL]종합:1.0|단어:1.0|문법:1.0[/HSK_EVAL]
+
+---
