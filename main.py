@@ -67,7 +67,7 @@ except (ValueError, TypeError):
 # Model configuration (centralized via environment variables)
 # Set in .env: GEMINI_MODEL_PRIMARY, GEMINI_MODEL_SECONDARY
 # Default values if not set (fallback to tested working models)
-GEMINI_MODEL_1 = os.getenv("GEMINI_MODEL_PRIMARY", "gemma-4-31b-it")
+GEMINI_MODEL_1 = os.getenv("GEMINI_MODEL_PRIMARY", "gemma-4-26b-it")
 GEMINI_MODEL_2 = os.getenv("GEMINI_MODEL_SECONDARY", "gemini-3.5-flash")
 
 # New SDK Client

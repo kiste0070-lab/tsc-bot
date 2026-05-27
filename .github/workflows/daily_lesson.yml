@@ -33,7 +33,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
-          GEMINI_MODEL_PRIMARY: ${{ secrets.GEMINI_MODEL_PRIMARY || 'gemma-4-31b-it' }}
+          GEMINI_MODEL_PRIMARY: ${{ secrets.GEMINI_MODEL_PRIMARY || 'gemma-4-26b-it' }}
           GEMINI_MODEL_SECONDARY: ${{ secrets.GEMINI_MODEL_SECONDARY || 'gemini-3.5-flash' }}
         run: python main.py
 
