@@ -236,13 +236,26 @@ def check_duplicate(new_problems, existing_problems):
     return duplicates
 
 
-def generate_monthly_plan(year, month):
+def get_monthly_plan_filepath(year, month):
     plan_filename = f"{year}_{month:02d}.md"
-    plan_filepath = os.path.join(MONTHLY_PLAN_DIR, plan_filename)
+    return os.path.join(MONTHLY_PLAN_DIR, plan_filename)
 
-    if os.path.exists(plan_filepath):
+
+def monthly_plan_exists(year, month):
+    return os.path.exists(get_monthly_plan_filepath(year, month))
+
+
+def generate_monthly_plan(year, month, force=False):
+    plan_filename = f"{year}_{month:02d}.md"
+    plan_filepath = get_monthly_plan_filepath(year, month)
+
+    if os.path.exists(plan_filepath) and not force:
         logger.info(f"월간 계획 이미 존재: {plan_filename} - 스킵")
         return True
+
+    if force and os.path.exists(plan_filepath):
+        logger.warning(f"월간 계획 강제 재생성: {plan_filename}")
+        os.remove(plan_filepath)
 
     os.makedirs(MONTHLY_PLAN_DIR, exist_ok=True)
 
@@ -355,8 +368,7 @@ def generate_monthly_plan(year, month):
 
 
 def get_today_problems(year, month, day):
-    plan_filename = f"{year}_{month:02d}.md"
-    plan_filepath = os.path.join(MONTHLY_PLAN_DIR, plan_filename)
+    plan_filepath = get_monthly_plan_filepath(year, month)
 
     if not os.path.exists(plan_filepath):
         return None
@@ -366,7 +378,6 @@ def get_today_problems(year, month, day):
             content = f.read()
 
         # Find today's section with flexible regex matching
-        import re
         date_pattern = re.compile(rf"###\s*{year}[-\s년]*0?{month}[-\s월]*0?{day}[-\s일]*")
         match = date_pattern.search(content)
         
@@ -584,15 +595,60 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     now = datetime.now()
     year, month, day = now.year, now.month, now.day
 
-    # 월간 계획 확인/생성
-    generate_monthly_plan(year, month)
-
-    # 오늘 문제 읽기
     problems = get_today_problems(year, month, day)
+
+    # 월간 문제 리스트가 없으면 생성 후 오늘 문제 재조회
+    if not monthly_plan_exists(year, month):
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=(
+                f"📋 {year}년 {month}월 문제 리스트가 없습니다. "
+                "Gemini로 월간 문제 리스트를 생성 중입니다. 잠시만 기다려 주세요..."
+            ),
+        )
+        if not generate_monthly_plan(year, month):
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=(
+                    f"❌ {year}년 {month}월 문제 리스트 생성에 실패했습니다. "
+                    "Gemini API 상태를 확인한 후 GitHub Actions에서 다시 실행해 주세요."
+                ),
+            )
+            session.stop_requested = True
+            return
+        problems = get_today_problems(year, month, day)
+
+    # 리스트는 있으나 오늘 날짜 문제가 없으면 손상/미완성으로 보고 재생성
+    if not problems:
+        logger.warning(
+            f"오늘({year}-{month:02d}-{day:02d}) 문제 없음 - 월간 계획 재생성 시도"
+        )
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=(
+                f"📋 {year}-{month:02d}-{day:02d} 문제를 찾을 수 없어 "
+                "월간 문제 리스트를 다시 생성합니다. 잠시만 기다려 주세요..."
+            ),
+        )
+        if not generate_monthly_plan(year, month, force=True):
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=(
+                    f"❌ {year}-{month:02d}-{day:02d} 문제를 준비하지 못했습니다. "
+                    "월간 리스트 재생성에 실패했습니다. 관리자에게 문의하세요."
+                ),
+            )
+            session.stop_requested = True
+            return
+        problems = get_today_problems(year, month, day)
+
     if not problems:
         await context.bot.send_message(
             chat_id=chat_id,
-            text=f"죄송합니다. {year}-{month:02d}-{day:02d} 일자 문제를 찾을 수 없습니다. 관리자에게 문의하세요.",
+            text=(
+                f"죄송합니다. {year}-{month:02d}-{day:02d} 일자 문제를 "
+                "읽을 수 없습니다. Monthly_Plan 파일 형식을 확인해 주세요."
+            ),
         )
         session.stop_requested = True
         return
