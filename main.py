@@ -67,8 +67,8 @@ except (ValueError, TypeError):
 # Model configuration (centralized via environment variables)
 # Set in .env: GEMINI_MODEL_PRIMARY, GEMINI_MODEL_SECONDARY
 # Default values if not set (fallback to tested working models)
-GEMINI_MODEL_1 = os.getenv("GEMINI_MODEL_PRIMARY", "gemma-4-26b-it")
-GEMINI_MODEL_2 = os.getenv("GEMINI_MODEL_SECONDARY", "gemini-3.5-flash")
+GEMINI_MODEL_1 = os.getenv("GEMINI_MODEL_PRIMARY", "gemini-2.5-flash")
+GEMINI_MODEL_2 = os.getenv("GEMINI_MODEL_SECONDARY", "gemini-2.5-flash-lite")
 
 # New SDK Client
 client = genai.Client(api_key=GEMINI_KEY)
