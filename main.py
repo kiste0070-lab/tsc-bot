@@ -75,6 +75,39 @@ client = genai.Client(api_key=GEMINI_KEY)
 MODELS = [GEMINI_MODEL_1, GEMINI_MODEL_2]  # 폴백 순서 정의
 
 
+def _normalize_model_name(model_name: str) -> str:
+    return (model_name or "").strip().removeprefix("models/")
+
+
+def validate_configured_models():
+    """시작 시 API에서 조회 가능한 모델 목록을 확인해 오타/미지원 모델을 빠르게 감지한다."""
+    configured = [_normalize_model_name(m) for m in MODELS if m]
+    if not configured:
+        logger.warning("설정된 Gemini 모델이 없습니다. GEMINI_MODEL_* 환경 변수를 확인하세요.")
+        return
+
+    try:
+        available_models = set()
+        for model in client.models.list():
+            model_name = _normalize_model_name(getattr(model, "name", ""))
+            if model_name:
+                available_models.add(model_name)
+
+        if not available_models:
+            logger.warning("Gemini 모델 목록이 비어 있습니다. API 키/권한/엔드포인트를 확인하세요.")
+            return
+
+        for model_name in configured:
+            if model_name in available_models:
+                logger.info(f"모델 사용 가능 확인: {model_name}")
+            else:
+                logger.warning(
+                    f"설정 모델 미확인: {model_name} (models.list 결과에 없음, generateContent 미지원 또는 API 버전 불일치 가능)"
+                )
+    except Exception as e:
+        logger.warning(f"모델 목록 점검 실패: {e}")
+
+
 # ============================================================
 # 상태 관리: 클래스 기반 (global 변수 제거)
 # ============================================================
@@ -794,6 +827,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def main():
     logger.info("즉시 수업을 시작합니다.")
+    validate_configured_models()
 
     logger.info("텔레그램 봇 초기화 중...")
     try:
