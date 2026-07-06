@@ -2,7 +2,7 @@ name: Daily Chinese Sentence
 
 on:
   schedule:
-    - cron: '59 2 * * *'  # KST 11:59
+    - cron: '0 2 * * *'  # KST 11:00
   workflow_dispatch:
 
 jobs:
