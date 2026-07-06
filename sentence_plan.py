@@ -153,9 +153,8 @@ def generate_monthly_sentences(year: int, month: int, force: bool = False) -> bo
 
 [출력 형식 - 이 형식만 사용]
 ### YYYY-MM-DD
-문장 : (중국어 한 문장)
-주제 : (한국어로 주제 한 줄)
-메모 : (한국어로 사용 상황 한 줄)
+한자(병음, 한글 뜻)
+외워야 할 항목: [단어1 — 품사(한글 뜻)], [숙어 — 뜻], [문장형식 — 설명]
 
 ### YYYY-MM-DD
 ...
