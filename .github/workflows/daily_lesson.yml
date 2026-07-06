@@ -1,25 +1,22 @@
-name: Daily TSC Lesson
+name: Daily Chinese Sentence
 
 on:
   schedule:
-    # 매일 한국 시간 오전 11:59 (UTC 02:59)에 실행
-    - cron: '59 2 * * *'
-  workflow_dispatch: # 수동 실행 버튼 활성화
+    - cron: '59 2 * * *'  # KST 11:59
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # wrong_notes 커밋/푸시에 필요
+      contents: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -28,7 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install gTTS python-telegram-bot google-genai python-dotenv
 
-      - name: Run TSC Bot
+      - name: Run Daily Sentence Bot
         env:
           TZ: Asia/Seoul
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -38,12 +35,11 @@ jobs:
           GEMINI_MODEL_SECONDARY: ${{ secrets.GEMINI_MODEL_SECONDARY || 'gemini-2.5-flash-lite' }}
         run: python main.py
 
-      - name: Commit and push wrong_notes and Monthly_Plan
+      - name: Commit study data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add wrong_notes/ Monthly_Plan/
-          # 변경사항이 없으면 커밋하지 않고 정상 종료
-          git diff --cached --quiet && echo "변경사항 없음, 커밋 생략" || \
-          git commit -m "📝 오답노트 및 월간 계획 업데이트: $(date '+%Y-%m-%d')"
+          git add study_notes/ Daily_Sentences/
+          git diff --cached --quiet && echo "변경 없음" || \
+          git commit -m "📚 하루 1문장 학습 기록: $(date '+%Y-%m-%d')"
           git push
