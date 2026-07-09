@@ -32,9 +32,10 @@ YEARLY_MONTHS = 12
 DATE_PATTERN = re.compile(
     r"###\s*(\d{4})[-\s년]*0?(\d{1,2})[-\s월]*0?(\d{1,2})[-\s일]*"
 )
-SENTENCE_PATTERN = re.compile(r"^문장\s*:\s*(.+)$")
-TOPIC_PATTERN = re.compile(r"^주제\s*:\s*(.+)$")
-MEMO_PATTERN = re.compile(r"^메모\s*:\s*(.+)$")
+
+# New format: after header, first non-empty line is the Chinese sentence with pinyin and Korean meaning.
+# second line starts with '외워야 할 항목:' and contains study items.
+STUDY_ITEM_PREFIX = "외워야 할 항목:"
 
 client = genai.Client(api_key=GEMINI_KEY)
 
@@ -64,7 +65,11 @@ def monthly_plan_exists(year: int, month: int) -> bool:
     path = get_monthly_filepath(year, month)
     if not path.exists():
         return False
-    return bool(SENTENCE_PATTERN.search(path.read_text(encoding="utf-8")))
+    try:
+        txt = path.read_text(encoding="utf-8")
+        return STUDY_ITEM_PREFIX in txt or "### " in txt
+    except Exception:
+        return False
 
 
 def load_anchor() -> dict | None:
@@ -100,10 +105,15 @@ def get_existing_sentences() -> list[str]:
         return existing
     for filepath in SENTENCES_DIR.glob("*.md"):
         try:
-            for line in filepath.read_text(encoding="utf-8").splitlines():
-                m = SENTENCE_PATTERN.match(line.strip())
-                if m:
-                    existing.append(m.group(1).strip())
+            lines = filepath.read_text(encoding="utf-8").splitlines()
+            for i, line in enumerate(lines):
+                if line.strip().startswith("###"):
+                    # find next non-empty line after header
+                    for j in range(i + 1, min(i + 6, len(lines))):
+                        candidate = lines[j].strip()
+                        if candidate:
+                            existing.append(candidate)
+                            break
         except Exception as e:
             logger.warning(f"파일 읽기 오류 {filepath.name}: {e}")
     return existing
@@ -116,10 +126,15 @@ def check_duplicate(new_sentences: list[str], existing: list[str]) -> list[str]:
 
 def _parse_sentences_from_content(content: str) -> list[str]:
     sentences = []
-    for line in content.splitlines():
-        m = SENTENCE_PATTERN.match(line.strip())
-        if m:
-            sentences.append(m.group(1).strip())
+    lines = content.splitlines()
+    for i, line in enumerate(lines):
+        if line.strip().startswith("###"):
+            # next non-empty line is the Chinese sentence line
+            for j in range(i + 1, min(i + 6, len(lines))):
+                cand = lines[j].strip()
+                if cand:
+                    sentences.append(cand)
+                    break
     return sentences
 
 
@@ -261,17 +276,23 @@ def get_today_sentence(year: int, month: int, day: int) -> dict | None:
         next_hdr = content.find("\n### ", start + 1)
         section = content[start:] if next_hdr == -1 else content[start:next_hdr]
 
+        # parse new format
         result: dict = {}
-        for line in section.splitlines():
-            line = line.strip()
-            for pat, key in (
-                (SENTENCE_PATTERN, "sentence"),
-                (TOPIC_PATTERN, "topic"),
-                (MEMO_PATTERN, "memo"),
-            ):
-                m = pat.match(line)
-                if m:
-                    result[key] = m.group(1).strip()
+        lines = section.splitlines()
+        # skip header line
+        for idx, ln in enumerate(lines[1:], start=1):
+            ln = ln.strip()
+            if not ln:
+                continue
+            # first non-empty line is the sentence (with pinyin and meaning)
+            result["sentence"] = ln
+            # look for study item line
+            for k in range(idx + 1, min(idx + 6, len(lines))):
+                l2 = lines[k].strip()
+                if l2.startswith(STUDY_ITEM_PREFIX):
+                    result["memo"] = l2[len(STUDY_ITEM_PREFIX):].strip()
+                    break
+            break
         return result if "sentence" in result else None
     except Exception as e:
         logger.error(f"오늘 문장 읽기 오류: {e}")
