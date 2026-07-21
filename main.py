@@ -255,7 +255,8 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
     )
     text_response = response.text
     await context.bot.send_message(chat_id=chat_id, text=text_response)
-    await send_voice_message(context, chat_id, today["sentence"])
+    chinese_text = today["sentence"].splitlines()[0] if today.get("sentence") else ""
+    await send_voice_message(context, chat_id, chinese_text)
     session.add_to_history(chat_id, "model", text_response)
 
 

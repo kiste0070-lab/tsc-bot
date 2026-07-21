@@ -168,18 +168,24 @@ def generate_monthly_sentences(year: int, month: int, force: bool = False) -> bo
 
 [출력 형식 - 이 형식만 사용]
 ### YYYY-MM-DD
-한자(병음, 한글 뜻)
-외워야 할 항목: [단어1 — 품사(한글 뜻)], [숙어 — 뜻], [문장형식 — 설명]
+한자
+(병음)
+한글 뜻
+외워야 할 항목:
+1. [단어1 — 품사(한글 뜻)]
+2. [단어2 — 품사(한글 뜻)]
+3. [숙어/문장형식 — 설명]
 
 ### YYYY-MM-DD
 ...
 
 [규칙]
 1. 문장 필드는 중국어만
-2. 모든 문장은 HSK 4급 학습자가 이해·암기하기 적합한 난이도
-3. {year}년 {month}월 모든 날짜를 빠짐없이 포함
-4. 설명·인사말 없이 위 형식만 출력
-5. 날짜 헤더는 ### YYYY-MM-DD 형식
+2. 외워야 할 항목은 넘버링하여 1개 단어/항목당 1줄씩 작성
+3. 모든 문장은 HSK 4급 학습자가 이해·암기하기 적합한 난이도
+4. {year}년 {month}월 모든 날짜를 빠짐없이 포함
+5. 설명·인사말 없이 위 형식만 출력
+6. 날짜 헤더는 ### YYYY-MM-DD 형식
 """
 
     for i, model_id in enumerate(MODELS):
@@ -276,23 +282,34 @@ def get_today_sentence(year: int, month: int, day: int) -> dict | None:
         next_hdr = content.find("\n### ", start + 1)
         section = content[start:] if next_hdr == -1 else content[start:next_hdr]
 
-        # parse new format
         result: dict = {}
-        lines = section.splitlines()
-        # skip header line
-        for idx, ln in enumerate(lines[1:], start=1):
-            ln = ln.strip()
-            if not ln:
-                continue
-            # first non-empty line is the sentence (with pinyin and meaning)
-            result["sentence"] = ln
-            # look for study item line
-            for k in range(idx + 1, min(idx + 6, len(lines))):
-                l2 = lines[k].strip()
-                if l2.startswith(STUDY_ITEM_PREFIX):
-                    result["memo"] = l2[len(STUDY_ITEM_PREFIX):].strip()
-                    break
-            break
+        raw_lines = [ln.strip() for ln in section.splitlines() if ln.strip()]
+        if len(raw_lines) < 2:
+            return None
+
+        content_lines = raw_lines[1:]
+        item_prefix_idx = -1
+        for idx, line in enumerate(content_lines):
+            if line.startswith(STUDY_ITEM_PREFIX):
+                item_prefix_idx = idx
+                break
+
+        if item_prefix_idx != -1:
+            result["sentence"] = "\n".join(content_lines[:item_prefix_idx])
+
+            memo_lines = []
+            prefix_line = content_lines[item_prefix_idx]
+            inline_text = prefix_line[len(STUDY_ITEM_PREFIX):].strip()
+            if inline_text:
+                memo_lines.append(inline_text)
+
+            for line in content_lines[item_prefix_idx + 1:]:
+                memo_lines.append(line)
+
+            result["memo"] = "\n".join(memo_lines)
+        else:
+            result["sentence"] = "\n".join(content_lines)
+
         return result if "sentence" in result else None
     except Exception as e:
         logger.error(f"오늘 문장 읽기 오류: {e}")
