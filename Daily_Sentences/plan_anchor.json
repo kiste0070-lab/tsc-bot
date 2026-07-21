@@ -1,9 +1,9 @@
 {
   "start_year": 2026,
   "start_month": 7,
-  "end_year": 2027,
-  "end_month": 6,
-  "months": 12,
+  "end_year": 2026,
+  "end_month": 12,
+  "months": 6,
   "created_at": "2026-07-06",
   "hsk_level": 4
 }

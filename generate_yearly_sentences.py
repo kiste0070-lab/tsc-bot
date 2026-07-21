@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""HSK 4급 하루 1문장 — 연간(12개월) 문장 일괄 생성"""
+"""HSK 4급 하루 1문장 — 6개월치 문장 일괄 생성"""
 
 import argparse
 import logging
@@ -15,7 +15,7 @@ logging.basicConfig(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="HSK 4급 문장 1년치(12개월) 미리 생성")
+    parser = argparse.ArgumentParser(description="HSK 4급 문장 6개월치 미리 생성")
     parser.add_argument("--year", type=int, help="시작 연도 (기본: 올해)")
     parser.add_argument("--month", type=int, help="시작 월 (기본: 이번 달)")
     parser.add_argument("--force", action="store_true", help="기존 파일 덮어쓰기")

@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent
 SENTENCES_DIR = BASE_DIR / "Daily_Sentences"
 ANCHOR_FILE = SENTENCES_DIR / "plan_anchor.json"
 
-YEARLY_MONTHS = 12
+YEARLY_MONTHS = 6
 
 DATE_PATTERN = re.compile(
     r"###\s*(\d{4})[-\s년]*0?(\d{1,2})[-\s월]*0?(\d{1,2})[-\s일]*"
