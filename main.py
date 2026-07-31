@@ -196,7 +196,7 @@ def get_system_prompt(today: dict) -> str:
 난이도 : HSK 4급
 
 [진행 규칙]
-1. 수업 시작 시 오늘의 문장을 아래 형식으로 제시해:
+1. 수업 시작 시 오늘의 문장을 아래 형식으로 제시해 (명령어 안내 없이):
    📌 오늘의 문장 (HSK 4급)
    (중국어 문장)
    (pinyin)
@@ -250,8 +250,7 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
 
     response = send_chat_message_with_fallback(
         chat_id,
-        "인사말 없이 오늘의 HSK 4급 문장을 지정된 형식으로 바로 제시해줘. "
-        "마지막에 '문장설명', '예문보기', '따라말하기', '학습종료' 명령을 안내해줘.",
+        "인사말 없이 오늘의 HSK 4급 문장을 지정된 형식으로 바로 제시해줘.",
     )
     text_response = response.text
     await context.bot.send_message(chat_id=chat_id, text=text_response)
@@ -318,8 +317,15 @@ async def main():
     await start_lesson(MockContext(application))
     await application.updater.start_polling()
 
-    while not session.stop_requested:
+    # Wait for user interaction or timeout
+    timeout = 600
+    elapsed = 0
+    while not session.stop_requested and elapsed < timeout:
         await asyncio.sleep(1)
+        elapsed += 1
+
+    if elapsed >= timeout:
+        logger.info("타임아웃 — 봇 자동 종료")
 
     for stop in (application.updater.stop, application.stop, application.shutdown):
         try:
