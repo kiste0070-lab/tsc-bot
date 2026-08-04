@@ -21,6 +21,7 @@ from sentence_plan import (
     load_anchor,
     monthly_plan_exists,
 )
+from text_utils import normalize_chinese_lines
 
 log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(
@@ -209,6 +210,7 @@ def get_system_prompt(today: dict) -> str:
 5. '학습종료' → 오늘 문장 요약, HSK 4급 암기 팁, 복습 방법 안내 후 "학습 종료" 출력
 6. 모든 중국어 한자 아래 줄에 (pinyin) 필수
 7. 설명·피드백은 한국어로, 예문도 HSK 4급 범위 유지
+8. 중국어 문장과 예문은 반드시 한 줄에만 작성하고, 단어 사이를 줄바꿈하지 말 것
 """
 
 
@@ -252,7 +254,7 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         chat_id,
         "인사말 없이 오늘의 HSK 4급 문장을 지정된 형식으로 바로 제시해줘.",
     )
-    text_response = response.text
+    text_response = normalize_chinese_lines(response.text)
     await context.bot.send_message(chat_id=chat_id, text=text_response)
     chinese_text = today["sentence"].splitlines()[0] if today.get("sentence") else ""
     await send_voice_message(context, chat_id, chinese_text)
@@ -273,8 +275,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 chat_id,
                 "학습종료. 오늘 문장 요약, 암기 팁, 복습 방법을 정리하고 마지막에 '학습 종료'라고 말해줘.",
             )
-            save_study_note(user_text, response.text)
-            await update.message.reply_text(response.text)
+            normalized = normalize_chinese_lines(response.text)
+            save_study_note(user_text, normalized)
+            await update.message.reply_text(normalized)
         await update.message.reply_text("오늘 학습을 마칩니다. 수고하셨습니다!")
         await shutdown_bot(context)
         return
@@ -284,7 +287,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     response = send_chat_message_with_fallback(chat_id, user_text)
-    full_text = response.text
+    full_text = normalize_chinese_lines(response.text)
     save_study_note(user_text, full_text)
 
     if "학습 종료" not in full_text:
