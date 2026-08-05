@@ -154,6 +154,10 @@ async def send_voice_message(context, chat_id, text):
         await context.bot.send_voice(chat_id=chat_id, voice=voice_file)
     except Exception as e:
         logger.error(f"TTS 에러: {e}")
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text="⚠️ 음성 생성에 실패했습니다. 텍스트로 학습을 진행해 주세요."
+        )
 
 
 def save_study_note(user_text: str, model_text: str):

@@ -1,4 +1,5 @@
 from text_utils import normalize_chinese_lines, strip_markdown
+from sentence_plan import check_duplicate
 
 
 def test_merges_word_per_line_broken_sentence():
@@ -93,3 +94,21 @@ def test_strip_markdown_removes_link_keeps_label():
 def test_strip_markdown_removes_italic_underscores():
     text = "_강조된 단어_"
     assert strip_markdown(text) == "강조된 단어"
+
+
+def test_check_duplicate_detects_exact_match():
+    existing = ["请你把这份报告打印出来。"]
+    new = ["请你把这份报告打印出来。", "新句子。"]
+    assert check_duplicate(new, existing) == ["请你把这份报告打印出来。"]
+
+
+def test_check_duplicate_case_insensitive_trim():
+    existing = ["  请你把这份报告打印出来。  "]
+    new = ["请你把这份报告打印出来。"]
+    assert check_duplicate(new, existing) == ["请你把这份报告打印出来。"]
+
+
+def test_check_duplicate_no_false_positive():
+    existing = ["请你把这份报告打印出来。"]
+    new = ["请你把这份报告打印。", "完全不同句子。"]
+    assert check_duplicate(new, existing) == []

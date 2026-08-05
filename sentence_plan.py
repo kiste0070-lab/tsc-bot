@@ -120,11 +120,15 @@ def get_existing_sentences() -> list[str]:
 
 
 def check_duplicate(new_sentences: list[str], existing: list[str]) -> list[str]:
-    existing_set = set(existing)
+    existing_set = {s.strip() for s in existing}
     return [s for s in new_sentences if s.strip() in existing_set]
 
 
 def _parse_sentences_from_content(content: str) -> list[str]:
+    """Gemini 응답에서 날짜별 문장(한자 첫 줄)만 추출. 형식 위반 시 빈 리스트 반환."""
+    if not content or not content.strip():
+        logger.warning("빈 응답 콘텐츠")
+        return []
     sentences = []
     lines = content.splitlines()
     for i, line in enumerate(lines):
@@ -133,8 +137,14 @@ def _parse_sentences_from_content(content: str) -> list[str]:
             for j in range(i + 1, min(i + 6, len(lines))):
                 cand = lines[j].strip()
                 if cand:
-                    sentences.append(cand)
+                    # 한자 포함 여부 최소 검증
+                    if re.search(r"[\u4e00-\u9fff]", cand):
+                        sentences.append(cand)
+                    else:
+                        logger.warning(f"한자 없는 문장 라인 무시: {cand!r}")
                     break
+            else:
+                logger.warning(f"### 헤더 후 문장 라인 없음: {line!r}")
     return sentences
 
 
@@ -198,17 +208,21 @@ def generate_monthly_sentences(year: int, month: int, force: bool = False) -> bo
                 logger.info(f"[{model_id}] {year}-{month:02d} 생성 시도 {attempt + 1}/3")
                 response = client.models.generate_content(model=model_id, contents=prompt)
                 plan_content = response.text.strip()
+                if not plan_content:
+                    logger.warning(f"[{model_id}] 빈 응답, 재시도")
+                    continue
                 new_sentences = _parse_sentences_from_content(plan_content)
 
                 if len(new_sentences) < num_days:
                     logger.warning(
-                        f"문장 수 부족: {len(new_sentences)}/{num_days}, 재시도"
+                        f"[{model_id}] 문장 수 부족: {len(new_sentences)}/{num_days}, 재시도"
                     )
                     prompt += f"\n\n[오류] {num_days}일치 문장이 필요합니다. 현재 {len(new_sentences)}개만 생성됨."
                     continue
 
                 dupes = check_duplicate(new_sentences, existing)
                 if dupes:
+                    logger.warning(f"[{model_id}] 중복 문장 {len(dupes)}개 발견, 재시도")
                     prompt += "\n\n[중복 문장 - 사용 금지]\n" + "\n".join(dupes[:20])
                     continue
 
@@ -216,15 +230,17 @@ def generate_monthly_sentences(year: int, month: int, force: bool = False) -> bo
                     f"# {year}년 {month}월 하루 1문장 학습 (HSK 4급)\n\n{plan_content}\n",
                     encoding="utf-8",
                 )
-                logger.info(f"완료: {filepath.name} ({len(new_sentences)}문장)")
+                logger.info(f"[{model_id}] 완료: {filepath.name} ({len(new_sentences)}문장)")
                 return True
             except Exception as e:
                 logger.error(f"[{model_id}] 생성 오류: {e}")
                 if attempt < 2:
                     time.sleep(60)
                 elif i < len(MODELS) - 1:
+                    logger.info(f"[{model_id}] 3회 실패, 다음 모델({MODELS[i+1]})로 폴백")
                     time.sleep(120)
                 break
+    logger.error(f"{year}-{month:02d} 모든 모델({len(MODELS)}개) 시도 실패")
     return False
 
 
@@ -280,6 +296,7 @@ def get_today_sentence(year: int, month: int, day: int) -> dict | None:
             )
             m2 = flex.search(content)
             if not m2:
+                logger.warning(f"날짜 헤더 못 찾음: {year}-{month:02d}-{day:02d}")
                 return None
             start = m2.start()
 
@@ -289,6 +306,7 @@ def get_today_sentence(year: int, month: int, day: int) -> dict | None:
         result: dict = {}
         raw_lines = [ln.strip() for ln in section.splitlines() if ln.strip()]
         if len(raw_lines) < 2:
+            logger.warning(f"섹션 라인 부족: {year}-{month:02d}-{day:02d}")
             return None
 
         content_lines = raw_lines[1:]
@@ -299,7 +317,11 @@ def get_today_sentence(year: int, month: int, day: int) -> dict | None:
                 break
 
         if item_prefix_idx != -1:
-            result["sentence"] = "\n".join(content_lines[:item_prefix_idx])
+            sentence_lines = content_lines[:item_prefix_idx]
+            # 문장 3줄(한자/병음/한글) 검증
+            if len(sentence_lines) < 3:
+                logger.warning(f"문장 라인 부족(<3): {year}-{month:02d}-{day:02d}")
+            result["sentence"] = "\n".join(sentence_lines)
 
             memo_lines = []
             prefix_line = content_lines[item_prefix_idx]
@@ -310,11 +332,13 @@ def get_today_sentence(year: int, month: int, day: int) -> dict | None:
             for line in content_lines[item_prefix_idx + 1:]:
                 memo_lines.append(line)
 
-            result["memo"] = "\n".join(memo_lines)
+            result["memo"] = "\n".join(memo_lines) if memo_lines else ""
         else:
+            logger.warning(f"외워야 할 항목 헤더 없음: {year}-{month:02d}-{day:02d}")
             result["sentence"] = "\n".join(content_lines)
+            result["memo"] = ""
 
-        return result if "sentence" in result else None
+        return result if result.get("sentence") else None
     except Exception as e:
         logger.error(f"오늘 문장 읽기 오류: {e}")
         return None
