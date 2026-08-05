@@ -6,6 +6,32 @@ _CJK_IDEOGRAPH = re.compile(r"[\u4e00-\u9fff]")
 _CJK_ONLY = re.compile(r"^[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef\s]+$")
 _SENTENCE_END = ("。", "！", "？")
 
+_MARKDOWN_HEADING = re.compile(r"^\s{0,3}#{1,6}\s*")
+_MARKDOWN_HR = re.compile(r"^\s{0,3}((-{3,})|(\*{3,})|(_{3,}))\s*$")
+_MARKDOWN_BULLET = re.compile(r"^\s*([-+*])\s+")
+_INLINE_CODE = re.compile(r"`([^`]*)`")
+_LINK = re.compile(r"\[([^\]]*)\]\([^)]*\)")
+
+
+def strip_markdown(text: str) -> str:
+    """Gemini 응답에서 마크다운 문법 기호를 제거해 순수 텍스트로 만든다."""
+    if not text:
+        return text
+    text = _INLINE_CODE.sub(r"\1", text)
+    text = _LINK.sub(r"\1", text)
+    lines = []
+    for line in text.splitlines():
+        line = _MARKDOWN_HR.sub("", line)
+        line = _MARKDOWN_BULLET.sub("", line)
+        line = line.strip()
+        lines.append(line)
+    lines = [_MARKDOWN_HEADING.sub("", ln) for ln in lines]
+    joined = "\n".join(lines)
+    joined = joined.replace("**", "").replace("__", "")
+    joined = joined.replace("_", "")
+    joined = re.sub(r" {2,}", " ", joined)
+    return joined
+
 
 def _is_chinese_only(line: str) -> bool:
     if not line:

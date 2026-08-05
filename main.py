@@ -21,7 +21,7 @@ from sentence_plan import (
     load_anchor,
     monthly_plan_exists,
 )
-from text_utils import normalize_chinese_lines
+from text_utils import normalize_chinese_lines, strip_markdown
 
 log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(
@@ -254,7 +254,7 @@ async def start_lesson(context: ContextTypes.DEFAULT_TYPE):
         chat_id,
         "인사말 없이 오늘의 HSK 4급 문장을 지정된 형식으로 바로 제시해줘.",
     )
-    text_response = normalize_chinese_lines(response.text)
+    text_response = normalize_chinese_lines(strip_markdown(response.text))
     await context.bot.send_message(chat_id=chat_id, text=text_response)
     chinese_text = today["sentence"].splitlines()[0] if today.get("sentence") else ""
     await send_voice_message(context, chat_id, chinese_text)
@@ -275,7 +275,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 chat_id,
                 "학습종료. 오늘 문장 요약, 암기 팁, 복습 방법을 정리하고 마지막에 '학습 종료'라고 말해줘.",
             )
-            normalized = normalize_chinese_lines(response.text)
+            normalized = normalize_chinese_lines(strip_markdown(response.text))
             save_study_note(user_text, normalized)
             await update.message.reply_text(normalized)
         await update.message.reply_text("오늘 학습을 마칩니다. 수고하셨습니다!")
@@ -287,7 +287,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     response = send_chat_message_with_fallback(chat_id, user_text)
-    full_text = normalize_chinese_lines(response.text)
+    full_text = normalize_chinese_lines(strip_markdown(response.text))
     save_study_note(user_text, full_text)
 
     if "학습 종료" not in full_text:

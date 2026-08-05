@@ -1,4 +1,4 @@
-from text_utils import normalize_chinese_lines
+from text_utils import normalize_chinese_lines, strip_markdown
 
 
 def test_merges_word_per_line_broken_sentence():
@@ -54,3 +54,42 @@ def test_empty_string_unchanged():
 def test_merge_preserves_inner_comma():
     text = "他\n工作很忙，\n没时间休息。"
     assert normalize_chinese_lines(text) == "他工作很忙，没时间休息。"
+
+
+def test_strip_bold_and_asterisk_markers():
+    text = "1.  **地方 (dìfang)**\n    *   **의미:** 곳, 장소"
+    assert strip_markdown(text) == "1. 地方 (dìfang)\n의미: 곳, 장소"
+
+
+def test_strip_markdown_keeps_content_text():
+    text = "这个地方的风景很美，值得一去。"
+    assert strip_markdown(text) == text
+
+
+def test_strip_markdown_removes_heading_and_hr():
+    text = "### 제목\n내용\n\n---\n\n아래 내용"
+    assert strip_markdown(text) == "제목\n내용\n\n\n\n아래 내용"
+
+
+def test_strip_markdown_removes_inline_code_backticks():
+    text = "코드 `print('hi')` 예시"
+    assert strip_markdown(text) == "코드 print('hi') 예시"
+
+
+def test_strip_markdown_removes_bullet_list_markers():
+    text = "- 첫번째\n- 두번째"
+    assert strip_markdown(text) == "첫번째\n두번째"
+
+
+def test_strip_markdown_empty_unchanged():
+    assert strip_markdown("") == ""
+
+
+def test_strip_markdown_removes_link_keeps_label():
+    text = "문서 [여기](https://example.com) 참고"
+    assert strip_markdown(text) == "문서 여기 참고"
+
+
+def test_strip_markdown_removes_italic_underscores():
+    text = "_강조된 단어_"
+    assert strip_markdown(text) == "강조된 단어"
